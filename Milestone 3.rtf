@@ -1,0 +1,73 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2578
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 ###DDL Statements###\
+\
+CREATE TABLE `main`.`Restaurant` (\
+  `restaurant_name` VARCHAR(100) NULL,\
+  `restaurant_phone` VARCHAR(45) NULL,\
+  `restaurant_website` VARCHAR(200) NULL,\
+  `hours` VARCHAR(200) NULL,\
+  `price_range` VARCHAR(45) NULL,\
+  `price_range_num` INT NULL,\
+  `restaurant_id` BIGINT NOT NULL,\
+  `address.city` VARCHAR(45) NULL,\
+  `address.state` VARCHAR(45) NULL,\
+  `address.postal_code` INT NULL,\
+  `address.street` VARCHAR(100) NULL,\
+  `address.formatted` VARCHAR(200) NULL,\
+  `geo.lat` FLOAT NULL,\
+  `geo.lon` FLOAT NULL,\
+  PRIMARY KEY (`restaurant_id`));\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 CREATE TABLE `main`.`Cuisine` (\
+  `cuisine` VARCHAR(100) NOT NULL,\
+  `restaurant_id` BIGINT NOT NULL,\
+  PRIMARY KEY (`cuisine`, `restaurant_id`), \
+  CONSTRAINT `restaurant_id` \
+  FOREIGN KEY (`restaurant_id`)\
+  REFERENCES `main`.`Restaurant` (`restaurant_id`)\
+  ON DELETE NO ACTION\
+  ON UPDATE NO ACTION);\
+\
+CREATE TABLE `main`.`FoodItem` (\
+  `name` VARCHAR(200) NOT NULL,\
+  `description` VARCHAR(200) NOT NULL,\
+  `price` FLOAT NULL,\
+  `rest_id` BIGINT NOT NULL,\
+  PRIMARY KEY (`name`, `description`, `rest_id`), \
+  CONSTRAINT `rest_id` \
+  FOREIGN KEY (`rest_id`)\
+  REFERENCES `main`.`Restaurant` (`restaurant_id`)\
+  ON DELETE NO ACTION\
+  ON UPDATE NO ACTION);\
+\
+###Queries###\
+\
+# Find restaurants of a certain cuisine \
+SELECT restaurant_name, `address.formatted`\
+FROM Cuisine C \
+JOIN Restaurant R ON C.restaurant_id = R.restaurant_id\
+WHERE cuisine = 'Ice Cream';\
+\
+# Dish recommendation off a search\
+SELECT restaurant_name, name, description\
+FROM Restaurant R \
+JOIN FoodItem F ON F.rest_id = R.restaurant_id\
+WHERE LOWER(name) LIKE '%pizza%';\
+\
+# For a given cuisine and dish, get places with the dish is priced above average\
+WITH choose_food_cuisine AS(SELECT restaurant_name, name, description, price\
+FROM FoodItem F \
+JOIN Cuisine C ON F.rest_id = C.restaurant_id \
+JOIN Restaurant R ON R.restaurant_id = F.rest_id\
+WHERE cuisine = 'Ice Cream' AND name LIKE '%sundae%' AND price <> 0)\
+SELECT restaurant_name, name, description, price\
+FROM choose_food_cuisine \
+WHERE price > (SELECT AVG(price) FROM choose_food_cuisine);\
+}
