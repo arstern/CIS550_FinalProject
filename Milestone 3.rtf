@@ -61,6 +61,24 @@ FROM Restaurant R \
 JOIN FoodItem F ON F.rest_id = R.restaurant_id\
 WHERE LOWER(name) LIKE '%pizza%';\
 \
+# Find restaurants and the dishes they serve that fall under a certain price range and serve a desired dish \
+SELECT r.restaurant_name, f.name\
+FROM Restaurant r\
+INNER JOIN (SELECT *\
+			FROM FoodItem\
+			WHERE name LIKE '%Hamburger%') f ON r.restaurant_id = f.rest_id\
+WHERE r.price_range_num < 2;\
+\
+# Find the most expensive dish that a restaurant serves \
+SELECT DISTINCT f.name, f.price\
+FROM Restaurant r\
+INNER JOIN FoodItem f ON r.restaurant_id = f.rest_id\
+WHERE r.restaurant_name = "Dunkin'"\
+AND f.price >= ALL(SELECT f1.price\
+					FROM Restaurant r1\
+					INNER JOIN FoodItem f1 ON r1.restaurant_id = f1.rest_id\
+					WHERE r1.restaurant_name = "Dunkin'");\
+\
 # For a given cuisine and dish, get places with the dish is priced above average\
 WITH choose_food_cuisine AS(SELECT restaurant_name, name, description, price\
 FROM FoodItem F \
@@ -70,4 +88,22 @@ WHERE cuisine = 'Ice Cream' AND name LIKE '%sundae%' AND price <> 0)\
 SELECT restaurant_name, name, description, price\
 FROM choose_food_cuisine \
 WHERE price > (SELECT AVG(price) FROM choose_food_cuisine);\
+\
+# Find the location of a given restuarant for a chain that has less expensive dishes on average with regards to the equivalent dishes at the other restuarant locations\
+WITH avg_prices_rest AS ((SELECT r1.restaurant_id, AVG(f1.price) as avg_price\
+	FROM Restaurant r1\
+    INNER JOIN FoodItem f1 ON r1.restaurant_id = f1.rest_id\
+    WHERE restaurant_name = "McDonald's"\
+    GROUP BY r1.restaurant_id\
+    HAVING avg_price != 0))\
+SELECT DISTINCT r.restaurant_name, r.`address.formatted`\
+FROM Restaurant r\
+INNER JOIN FoodItem f ON r.restaurant_id = f.rest_id\
+WHERE r.restaurant_name = "McDonald's"\
+AND r.restaurant_id = (SELECT av.restaurant_id\
+						FROM avg_prices_rest av\
+						WHERE av.avg_price <= ALL(SELECT avg_price\
+													FROM avg_prices_rest));\
+\
 }
+
