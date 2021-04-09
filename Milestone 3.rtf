@@ -65,8 +65,8 @@ WHERE LOWER(name) LIKE '%pizza%';\
 SELECT r.restaurant_name, f.name\
 FROM Restaurant r\
 INNER JOIN (SELECT *\
-			FROM FoodItem\
-			WHERE name LIKE '%Hamburger%') f ON r.restaurant_id = f.rest_id\
+		FROM FoodItem\
+		WHERE name LIKE '%Hamburger%') f ON r.restaurant_id = f.rest_id\
 WHERE r.price_range_num < 2;\
 \
 # Find the most expensive dish that a restaurant serves \
@@ -75,9 +75,9 @@ FROM Restaurant r\
 INNER JOIN FoodItem f ON r.restaurant_id = f.rest_id\
 WHERE r.restaurant_name = "Dunkin'"\
 AND f.price >= ALL(SELECT f1.price\
-					FROM Restaurant r1\
-					INNER JOIN FoodItem f1 ON r1.restaurant_id = f1.rest_id\
-					WHERE r1.restaurant_name = "Dunkin'");\
+			FROM Restaurant r1\
+			INNER JOIN FoodItem f1 ON r1.restaurant_id = f1.rest_id\
+			WHERE r1.restaurant_name = "Dunkin'");\
 \
 # For a given cuisine and dish, get places with the dish is priced above average\
 WITH choose_food_cuisine AS(SELECT restaurant_name, name, description, price\
@@ -101,9 +101,9 @@ FROM Restaurant r\
 INNER JOIN FoodItem f ON r.restaurant_id = f.rest_id\
 WHERE r.restaurant_name = "McDonald's"\
 AND r.restaurant_id = (SELECT av.restaurant_id\
-						FROM avg_prices_rest av\
-						WHERE av.avg_price <= ALL(SELECT avg_price\
-													FROM avg_prices_rest));\
+			FROM avg_prices_rest av\
+			WHERE av.avg_price <= ALL(SELECT avg_price\
+						FROM avg_prices_rest));\
 \
 }
 
