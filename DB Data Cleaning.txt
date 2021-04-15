@@ -1,0 +1,23 @@
+# Delete entries in food item that have no informative name and description 
+DELETE FROM FoodItem
+WHERE name = '' AND description = '';
+DELETE FROM FoodItem
+WHERE name = ' ' AND description = ' ';
+DELETE FROM FoodItem
+WHERE name = '.' AND description = '.';
+DELETE FROM FoodItem WHERE name = ' '; # 1 row only and had no description
+DELETE FROM FoodItem WHERE name = ''; # 5 rows only and had no description
+DELETE FROM FoodItem WHERE name = '-'; # 4 rows only and had no description
+
+# Make the name equal description if the name is not useful
+UPDATE FoodItem SET name = description WHERE name = '';
+UPDATE FoodItem SET name = description WHERE name = '.';
+
+# Trim whitespace
+UPDATE Restaurant SET restaurant_name = TRIM(restaurant_name);
+UPDATE Restaurant SET `address.city` = TRIM(`address.city`);
+UPDATE Restaurant SET `geo.lat` = TRIM(`geo.lat `);
+UPDATE Restaurant SET `geo.lon` = TRIM(`geo.lon`);
+
+# Normalize City Names
+UPDATE Restaurant SET `address.city` = UPPER(`address.city`);
