@@ -21,3 +21,19 @@ UPDATE Restaurant SET `geo.lon` = TRIM(`geo.lon`);
 
 # Normalize City Names
 UPDATE Restaurant SET `address.city` = UPPER(`address.city`);
+
+# Remove restaurants not in NYC - 41,450 restaurants originally, 22,342 in NYC
+CREATE TABLE FoodItem1 LIKE FoodItem;
+INSERT INTO FoodItem1
+    SELECT FoodItem.* FROM FoodItem
+		JOIN Restaurant ON Restaurant.restaurant_id = FoodItem.rest_id
+        WHERE `address.postal_code` IN (SELECT zip FROM NYzips);
+
+INSERT INTO FoodItem SELECT * FROM FoodItem1;
+DROP TABLE FoodItem1;
+
+DELETE Cuisine FROM Cuisine 
+JOIN Restaurant ON Restaurant.restaurant_id = Cuisine.restaurant_id
+WHERE `address.postal_code` NOT IN (SELECT zip FROM NYzips);
+
+DELETE FROM Restaurant WHERE `address.postal_code` NOT IN (SELECT zip FROM NYzips);
