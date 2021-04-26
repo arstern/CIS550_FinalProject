@@ -89,8 +89,8 @@ const ResizeHandleButton = tw.button`cursor-col-resize focus:outline-none w-4 bo
 
 export default ({
   features = null,
+  primaryButtonText = "Test Restaurant DB",
   primaryButtonUrl = "#landingPageDemos",
-  primaryButtonText = "Explore Demos",
   secondaryButtonUrl = "#componentDemos",
   secondaryButtonText = "View Components",
   buttonRoundedCss = "",
@@ -175,9 +175,9 @@ export default ({
                 ))}
               </FeatureList>
               <Actions>
-                <PrimaryButton href={primaryButtonUrl} css={buttonRoundedCss}>
+                <button onClick={DBClick} css={buttonRoundedCss}>
                   {primaryButtonText}
-                </PrimaryButton>
+                </button>
                 <SecondaryButton href={secondaryButtonUrl}>{secondaryButtonText}</SecondaryButton>
               </Actions>
             </TextColumn>
@@ -251,6 +251,22 @@ export default ({
     </AnimationRevealPage>
   );
 };
+
+  const DBClick = () => {
+    console.log( "Click" );
+     fetch("http://localhost:8082/dummy_search", {
+      method: "GET", // The type of HTTP request.
+    })
+      .then(res => res.json()) // Convert the response data to a JSON.
+      .then(peopleList => {
+        console.log(peopleList);
+        // Set the state of the person list to the value returned by the HTTP response from the server.
+        this.setState({
+          people: "peopleDivs",
+        });
+      })
+      .catch(err => console.log(err));
+  };
 
 const BlocksRenderer = ({ blocks }) => {
   const [lastVisibleBlockIndex, setLastVisibleBlockIndex] = useState(0);

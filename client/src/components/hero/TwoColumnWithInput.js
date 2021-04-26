@@ -46,6 +46,19 @@ const CustomersLogoStrip = styled.div`
 `;
 
 export default ({ roundedHeaderButton }) => {
+  const DBClick = () => {
+   console.log( document.getElementById('textbox_id').value ) 
+   console.log( "Clicked" );
+     fetch("http://localhost:8082/cuisine_search/" + document.getElementById('textbox_id').value  , {
+      method: "GET", // The type of HTTP request.
+    })
+      .then(res => res.json()) // Convert the response data to a JSON.
+      .then(peopleList => {
+        console.log(peopleList);
+        // Set the state of the person list to the value returned by the HTTP response from the server.
+      })
+      .catch(err => console.log(err));
+  };
   return (
     <>
       <Header roundedHeaderButton={roundedHeaderButton} />
@@ -60,8 +73,8 @@ export default ({ roundedHeaderButton }) => {
               pages and components.
             </Paragraph>
             <Actions>
-              <input type="text" placeholder="Your E-mail Address" />
-              <button>Get Started</button>
+              <input type="text" id='textbox_id' placeholder="Search for restaurant cuisine" />
+              <button onClick={DBClick}>Search</button>
             </Actions>
             <CustomersLogoStrip>
               <p>Our TRUSTED Customers</p>
