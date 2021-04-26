@@ -9,6 +9,9 @@ DELETE FROM FoodItem WHERE name = ' '; # 1 row only and had no description
 DELETE FROM FoodItem WHERE name = ''; # 5 rows only and had no description
 DELETE FROM FoodItem WHERE name = '-'; # 4 rows only and had no description
 
+# Delete entries in cuisine that have empty cuisine
+DELETE FROM Cuisine WHERE cuisine = ''; # 7562 rows affected
+
 # Make the name equal description if the name is not useful
 UPDATE FoodItem SET name = description WHERE name = '';
 UPDATE FoodItem SET name = description WHERE name = '.';
