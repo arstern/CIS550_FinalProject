@@ -9,6 +9,9 @@ DELETE FROM FoodItem WHERE name = ' '; # 1 row only and had no description
 DELETE FROM FoodItem WHERE name = ''; # 5 rows only and had no description
 DELETE FROM FoodItem WHERE name = '-'; # 4 rows only and had no description
 
+# Delete entries in cuisine that have empty cuisine
+DELETE FROM Cuisine WHERE cuisine = ''; # 7562 rows affected
+
 # Make the name equal description if the name is not useful
 UPDATE FoodItem SET name = description WHERE name = '';
 UPDATE FoodItem SET name = description WHERE name = '.';
@@ -37,3 +40,9 @@ JOIN Restaurant ON Restaurant.restaurant_id = Cuisine.restaurant_id
 WHERE `address.postal_code` NOT IN (SELECT zip FROM NYzips);
 
 DELETE FROM Restaurant WHERE `address.postal_code` NOT IN (SELECT zip FROM NYzips);
+
+# Add borough to remaining restaurants
+ALTER TABLE Restaurant ADD COLUMN borough VARCHAR(50) DEFAULT NULL;
+UPDATE Restaurant
+INNER JOIN NYzips ON Restaurant.`address.postal_code` = NYzips.zip
+SET Restaurant.borough = NYzips.borough;
