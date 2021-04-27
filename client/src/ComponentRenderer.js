@@ -24,7 +24,7 @@ import SignupPage from "pages/Signup.js";
 import PricingPage from "pages/Pricing.js";
 import AboutUsPage from "pages/AboutUs.js";
 import ContactUsPage from "pages/ContactUs.js";
-import BlogIndexPage from "pages/BlogIndex.js";
+import ResultsPage from "pages/Results.js";
 import TermsOfServicePage from "pages/TermsOfService.js";
 import PrivacyPolicyPage from "pages/PrivacyPolicy.js";
 
@@ -167,9 +167,9 @@ export const components = {
       url: `/components/innerPages/ContactUsPage`,
       imageSrc: ContactUsPageImageSrc,
     },
-    BlogIndexPage: {
-      component: BlogIndexPage,
-      url: `/components/innerPages/BlogIndexPage`,
+    ResultsPage: {
+      component: ResultsPage,
+      url: `/components/innerPages/ResultsPage`,
       imageSrc: BlogIndexPageImageSrc,
     },
     TermsOfServicePage: {

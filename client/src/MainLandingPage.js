@@ -137,7 +137,7 @@ export default ({
           <NavRow>
             <LogoLink href="/">
               <img src={logo} alt="" />
-              Treact
+              550 Final Proj
             </LogoLink>
             <div tw="flex flex-wrap justify-center lg:justify-end items-center -mr-12">
               <NavLink target="_blank" href="https://owaiskhan.me/post/free-tailwindcss-react-ui-kit">
@@ -254,7 +254,7 @@ export default ({
 
   const DBClick = () => {
     console.log( "Click" );
-     fetch("http://localhost:8082/dummy_search", {
+     fetch("http://localhost:8082/cuisine_search", {
       method: "GET", // The type of HTTP request.
     })
       .then(res => res.json()) // Convert the response data to a JSON.
