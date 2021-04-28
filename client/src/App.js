@@ -105,7 +105,10 @@ import ComponentRenderer from "ComponentRenderer.js";
 import MainLandingPage from "MainLandingPage.js";
 import ThankYouPage from "ThankYouPage.js";
 
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import RestaurantLandingPage from "components/cards/TabCardGrid.js";
+import ResultsPage from "pages/Results.js";
+
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 
 export default function App() {
   // If you want to disable the animation just use the disabled `prop` like below on your page's component
@@ -115,22 +118,30 @@ export default function App() {
   return (
     <Router>
       <Switch>
-        <Route path="/components/:type/:subtype/:name">
-          <ComponentRenderer />
-        </Route>
-        <Route path="/components/:type/:name">
-          <ComponentRenderer />
-        </Route>
-        <Route path="/thank-you">
-          <ThankYouPage />
+        <Route path="/restaurant/:rid">
+          <RestaurantLandingPage/>
         </Route>
         <Route path="/">
-          <MainLandingPage />
+          <ResultsPage/>
         </Route>
+
       </Switch>
     </Router>
   );
 }
+        // </Route>
+        // <Route path="/components/:type/:subtype/:name">
+        //   <ComponentRenderer />
+        // </Route>
+        // <Route path="/components/:type/:name">
+        //   <ComponentRenderer />
+        // </Route>
+        // <Route path="/thank-you">
+        //   <ThankYouPage />
+        // </Route>
+        // <Route path="/">
+        //   <MainLandingPage />
+        // </Route>
 
 // export default EventLandingPage;
 // export default HotelTravelLandingPage;

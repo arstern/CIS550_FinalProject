@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+//import React, { useState } from "react";
 import { motion } from "framer-motion";
 import tw from "twin.macro";
 import styled from "styled-components";
@@ -9,6 +10,9 @@ import { PrimaryButton as PrimaryButtonBase } from "components/misc/Buttons.js";
 import { ReactComponent as StarIcon } from "images/star-icon.svg";
 import { ReactComponent as SvgDecoratorBlob1 } from "images/svg-decorator-blob-5.svg";
 import { ReactComponent as SvgDecoratorBlob2 } from "images/svg-decorator-blob-7.svg";
+import AnimationRevealPage from "helpers/AnimationRevealPage.js";
+import Footer from "components/footers/FiveColumnWithInputForm.js";
+import { createBrowserHistory } from "history";
 
 const HeaderRow = tw.div`flex justify-between items-center flex-col xl:flex-row`;
 const Header = tw(SectionHeading)``;
@@ -21,7 +25,7 @@ const TabControl = styled.div`
   }
   ${props => props.active && tw`bg-primary-500! text-gray-100!`}
   }
-`;
+`; 
 
 const TabContent = tw(motion.div)`mt-6 flex flex-wrap sm:-mr-10 md:-mr-6 lg:-mr-12`;
 const CardContainer = tw.div`mt-10 w-full sm:w-1/2 md:w-1/3 lg:w-1/4 sm:pr-10 md:pr-6 lg:pr-12`;
@@ -51,6 +55,8 @@ const CardTitle = tw.h5`text-lg font-semibold group-hover:text-primary-500`;
 const CardContent = tw.p`mt-1 text-sm font-medium text-gray-600`;
 const CardPrice = tw.p`mt-4 text-xl font-bold`;
 
+const HighlightedText = tw.span`bg-primary-500 text-gray-100 px-4 transform -skew-x-12 inline-block`;
+
 const DecoratorBlob1 = styled(SvgDecoratorBlob1)`
   ${tw`pointer-events-none -z-20 absolute right-0 top-0 h-64 w-64 opacity-15 transform translate-x-2/3 -translate-y-12 text-pink-400`}
 `;
@@ -58,118 +64,105 @@ const DecoratorBlob2 = styled(SvgDecoratorBlob2)`
   ${tw`pointer-events-none -z-20 absolute left-0 bottom-0 h-80 w-80 opacity-15 transform -translate-x-2/3 text-primary-500`}
 `;
 
-export default ({
-  heading = "Checkout the Menu",
-  tabs = {
-    Starters: [
-      {
-        imageSrc:
-          "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-        title: "Veg Mixer",
-        content: "Tomato Salad & Carrot",
-        price: "$5.99",
-        rating: "5.0",
-        reviews: "87",
-        url: "#"
-      },
-      {
-        imageSrc:
-          "https://images.unsplash.com/photo-1432139555190-58524dae6a55?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-        title: "Macaroni",
-        content: "Cheese Pizza",
-        price: "$2.99",
-        rating: "4.8",
-        reviews: "32",
-        url: "#"
-      },
-      {
-        imageSrc:
-          "https://images.unsplash.com/photo-1476224203421-9ac39bcb3327??ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-        title: "Nelli",
-        content: "Hamburger & Fries",
-        price: "$7.99",
-        rating: "4.9",
-        reviews: "89",
-        url: "#"
-      },
-      {
-        imageSrc:
-          "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-        title: "Jalapeno Poppers",
-        content: "Crispy Soyabeans",
-        price: "$8.99",
-        rating: "4.6",
-        reviews: "12",
-        url: "#"
-      },
-      {
-        imageSrc:
-          "https://images.unsplash.com/photo-1473093226795-af9932fe5856?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-        title: "Cajun Chicken",
-        content: "Roasted Chicken & Egg",
-        price: "$7.99",
-        rating: "4.2",
-        reviews: "19",
-        url: "#"
-      },
-      {
-        imageSrc:
-          "https://images.unsplash.com/photo-1550461716-dbf266b2a8a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-        title: "Chillie Cake",
-        content: "Deepfried Chicken",
-        price: "$2.99",
-        rating: "5.0",
-        reviews: "61",
-        url: "#"
-      },
-      {
-        imageSrc:
-          "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-        title: "Guacamole Mex",
-        content: "Mexican Chilli",
-        price: "$3.99",
-        rating: "4.2",
-        reviews: "95",
-        url: "#"
-      },
-      {
-        imageSrc:
-          "https://images.unsplash.com/photo-1565310022184-f23a884f29da?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-        title: "Carnet Nachos",
-        content: "Chilli Crispy Nachos",
-        price: "$3.99",
-        rating: "3.9",
-        reviews: "26",
-        url: "#"
-      }
-    ],
-    Main: getRandomCards(),
-    Soup: getRandomCards(),
-    Desserts: getRandomCards()
+export default class Menu extends React.Component {
+  constructor(props){
+    super(props);
+
+    const history = createBrowserHistory()
+    const rid = /[^/]*$/.exec(history.location.pathname)[0];
+    this.state = {
+      tabs: {
+          Starters: getRandomCards(),
+          Main: getRandomCards(),
+          Soup: getRandomCards(),
+          Desserts: getRandomCards(),
+        },
+        activeTab: "Starters",
+        name: "",
+        rid: rid
+    }
+    this.onSwitchSection = this.onSwitchSection.bind(this);
   }
-}) => {
+  componentDidMount() {
+
+  fetch("http://localhost:8082/getName/" + this.state.rid, {
+    method: "GET", // The type of HTTP request.
+  })
+    .then(res => res.json()) // Convert the response data to a JSON.
+    .then(name => {
+      console.log(name);
+      this.setState({
+        name: name[0]['restaurant_name']
+      });
+      // Set the state of the person list to the value returned by the HTTP response from the server.
+    })
+    .catch(err => console.log(err));
+  
+    fetch("http://localhost:8082/get_food_items/" + this.state.rid, {
+    method: "GET", // The type of HTTP request.
+    })
+    .then(res => res.json()) // Convert the response data to a JSON.
+    .then(foodlist => {
+      var count = 0;
+      var actual_food = this.state.tabs;
+      var sections = ['Starters', 'Main', 'Soup', 'Desserts'];
+      for (var s = 0; s<4; s++){
+        var tabName = sections[s];
+        for (var i = 0; i<this.state.tabs[tabName].length; i++){
+          actual_food[tabName][i]['title'] = foodlist[count]['name'];
+          actual_food[tabName][i]['price'] = "$" + foodlist[count]['price'];
+          actual_food[tabName][i]['content'] = '';          
+          if (count >= foodlist.length-1){
+            break;
+          }
+          count += 1;
+        }
+      }
+      this.setState({
+        tabs: actual_food
+      });
+      console.log(actual_food);
+      // Set the state of the person list to the value returned by the HTTP response from the server.
+    })
+    .catch(err => console.log(err));
+  }
+
+  onSwitchSection (tabName){
+    if (tabName !== this.state.activeTab){
+      this.setState({
+            activeTab: tabName,
+          });
+    }
+  };
+
+
+render(){
   /*
    * To customize the tabs, pass in data using the `tabs` prop. It should be an object which contains the name of the tab
    * as the key and value of the key will be its content (as an array of objects).
    * To see what attributes are configurable of each object inside this array see the example above for "Starters".
    */
-  const tabsKeys = Object.keys(tabs);
-  const [activeTab, setActiveTab] = useState(tabsKeys[0]);
-
+  const tabsKeys = Object.keys(this.state.tabs);
+  //const [activeTab, setActiveTab] = useState(tabsKeys[0]);
+ 
   return (
+    <AnimationRevealPage>
     <Container>
       <ContentWithPaddingXl>
         <HeaderRow>
-          <Header>{heading}</Header>
+          <Header> {this.state.name} <HighlightedText>menu.</HighlightedText> </Header> 
+
           <TabsControl>
-            {Object.keys(tabs).map((tabName, index) => (
-              <TabControl key={index} active={activeTab === tabName} onClick={() => setActiveTab(tabName)}>
-                {tabName}
+            {tabsKeys.map((tabName, index) => (
+              <TabControl key={index} active={this.state.activeTab === tabName} onClick={()=> this.onSwitchSection(tabName) } >
+              {tabName}
+
               </TabControl>
             ))}
-          </TabsControl>
+          </TabsControl>        
         </HeaderRow>
 
+        
         {tabsKeys.map((tabKey, index) => (
           <TabContent
             key={index}
@@ -186,10 +179,10 @@ export default ({
               }
             }}
             transition={{ duration: 0.4 }}
-            initial={activeTab === tabKey ? "current" : "hidden"}
-            animate={activeTab === tabKey ? "current" : "hidden"}
+            initial={this.state.activeTab === tabKey ? "current" : "hidden"}
+            animate={this.state.activeTab === tabKey ? "current" : "hidden"}
           >
-            {tabs[tabKey].map((card, index) => (
+            {this.state.tabs[tabKey].map((card, index) => (
               <CardContainer key={index}>
                 <Card className="group" href={card.url} initial="rest" whileHover="hover" animate="rest">
                   <CardImageContainer imageSrc={card.imageSrc}>
@@ -227,10 +220,12 @@ export default ({
           </TabContent>
         ))}
       </ContentWithPaddingXl>
-      <DecoratorBlob1 />
-      <DecoratorBlob2 />
+
     </Container>
+     
+    </AnimationRevealPage>
   );
+  }
 };
 
 /* This function is only there for demo purposes. It populates placeholder cards */

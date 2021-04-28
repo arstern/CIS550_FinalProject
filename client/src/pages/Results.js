@@ -45,6 +45,18 @@ const Description = tw.div``;
 
 const ButtonContainer = tw.div`flex justify-center`;
 const LoadMoreButton = tw(PrimaryButton)`mt-16 mx-auto`;
+const PaddingDiv = tw.div`p-10`;
+
+const Actions = styled.div`
+  ${tw`relative max-w-md text-center mx-auto lg:mx-0`}
+  input {
+    ${tw`sm:pr-32 pl-8 py-4 sm:py-5 rounded-full border-2 w-full font-medium focus:outline-none transition duration-300  focus:border-primary-500 hover:border-gray-500`}
+  }
+  button {
+    ${tw`w-full sm:absolute right-0 top-0 bottom-0 bg-primary-500 text-gray-100 font-bold mr-1 h-12 my-3  rounded-full py-0 flex items-center justify-center sm:w-32 sm:leading-none focus:outline-none hover:bg-primary-900 transition duration-300`}
+  }
+`;
+
 export default class ResultsPage extends React.Component {
   constructor(props){
     super(props);
@@ -74,6 +86,7 @@ export default class ResultsPage extends React.Component {
       ]
     };
     this.onLoadMoreClick = this.onLoadMoreClick.bind(this);
+    this.DBClick = this.DBClick.bind(this);
   }
   onLoadMoreClick (){
     this.setState({
@@ -82,25 +95,50 @@ export default class ResultsPage extends React.Component {
   };
   
   componentDidMount() {
-    console.log("mounting");
-    fetch("http://localhost:8082/dummy_search/", {
+    var query_food = localStorage.getItem('query_food');
+    var query_cuisine = localStorage.getItem('query_cuisine') || ""
+    console.log(query_cuisine + ", " + query_cuisine.length);
+    var query = "http://localhost:8082/dummy_search/";
+    if (query_cuisine != null && query_cuisine.length != 0) {
+      var query = "http://localhost:8082/cuisine_search/" + query_cuisine
+    }
+    console.log(query)
+
+    fetch(query, {
       method: "GET", // The type of HTTP request.
     })
       .then(res => res.json()) // Convert the response data to a JSON.
       .then(resList => {
-        console.log(resList.length);
-        console.log(this.state.posts.length)
-        var actual_posts = this.state.posts
-        for (var i =0; i < Math.min(resList.length, this.state.posts.length-1); i++ ){
-          actual_posts[i+1]['title'] = resList[i]['restaurant_name']
-          console.log(actual_posts[i]);
-        }
-        this.setState({
-          posts: actual_posts,
-        });
-        // Set the state of the person list to the value returned by the HTTP response from the server.
+        this.populate(resList);
       })
       .catch(err => console.log(err));
+  }
+
+  DBClick(){
+   console.log( document.getElementById('textbox_id').value ) 
+   localStorage.setItem('query_cuisine', document.getElementById('textbox_id').value);
+   console.log("Stored: " + localStorage.getItem('query_cuisine'));
+   fetch("http://localhost:8082/cuisine_search/" + document.getElementById('textbox_id').value  , {
+      method: "GET", // The type of HTTP request.
+    })
+      .then(res => res.json()) // Convert the response data to a JSON.
+      .then(resList => {
+        this.populate(resList);
+      })
+      .catch(err => console.log(err));
+  };
+
+  populate(resList){
+      var actual_posts = this.state.posts
+      for (var i =0; i < Math.min(resList.length, this.state.posts.length-1); i++ ){
+        actual_posts[i+1]['title'] = resList[i]['restaurant_name']
+        actual_posts[i+1]['url'] = "/restaurant/" + resList[i]['rid']
+        //console.log(actual_posts[i]);
+      }
+      this.setState({
+        posts: actual_posts,
+        visible: 4
+      });
   }
 
   render(){
@@ -111,11 +149,16 @@ export default class ResultsPage extends React.Component {
         <ContentWithPaddingXl>
           <HeadingRow>
             <Heading>{this.state.headingText}</Heading>
+            <PaddingDiv> </PaddingDiv>
+            <Actions>
+              <input type="text" id='textbox_id' placeholder="Enter Cuisine" />
+              <button onClick={this.DBClick}>Search</button>
+            </Actions>
           </HeadingRow>
           <Posts>
             {this.state.posts.slice(0, this.state.visible).map((post, index) => (
               <PostContainer key={index} featured={post.featured}>
-                <Post className="group" as="a">
+                <Post className="group" as="a" href={post.url}>
                   <Image imageSrc={post.imageSrc} />
                   <Info>
                     <Category>{post.category}</Category>
@@ -133,7 +176,6 @@ export default class ResultsPage extends React.Component {
           )}
         </ContentWithPaddingXl>
       </Container>
-      <Footer />
     </AnimationRevealPage>
   );
   }
@@ -141,7 +183,7 @@ export default class ResultsPage extends React.Component {
 
 const getPlaceholderPost = () => ({
   imageSrc:
-    "https://images.unsplash.com/photo-1418854982207-12f710b74003?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1024&q=80",
+    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mjh8fHJlc3RhdXJhbnR8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80",
   category: "TEMP",
   date: "April 19, 2020",
   title: "Visit the beautiful Alps in Switzerland",
