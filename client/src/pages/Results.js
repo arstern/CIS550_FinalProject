@@ -8,6 +8,7 @@ import Header from "components/headers/light.js";
 import Footer from "components/footers/FiveColumnWithInputForm.js";
 import { SectionHeading } from "components/misc/Headings";
 import { PrimaryButton } from "components/misc/Buttons";
+import { GoogleMap, useLoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 
 const HeadingRow = tw.div`flex`;
 const Heading = tw(SectionHeading)`text-gray-900`;
@@ -57,11 +58,22 @@ const Actions = styled.div`
   }
 `;
 
+///GOOGLE MAPS
+const mapContainerStyle = {
+  width: "100vw",
+  height: "50vh",
+};
+const center={
+  lat: 40.712776,
+  lng: -74.005974,
+};
+
+
 export default class ResultsPage extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-       headingText : "RESULTS PAGE",
+       headingText : "Results Page",
        visible: 4,
        posts : [
           {
@@ -74,7 +86,6 @@ export default class ResultsPage extends React.Component {
               "Click on the pin of a restaurant to see more information about it.",
             featured: true
           },
-          getPlaceholderPost(),
           getPlaceholderPost(),
           getPlaceholderPost(),
           getPlaceholderPost(),
@@ -95,6 +106,14 @@ export default class ResultsPage extends React.Component {
   };
   
   componentDidMount() {
+
+    const { isLoaded, loadError } = useLoadScript({
+      googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY
+    });
+  
+    if (loadError) return "Error loading maps";
+    if (!isLoaded) return "Loading Maps";
+
     var query_food = localStorage.getItem('query_food');
     var query_cuisine = localStorage.getItem('query_cuisine') || ""
     console.log(query_cuisine + ", " + query_cuisine.length);
@@ -155,6 +174,17 @@ export default class ResultsPage extends React.Component {
               <button onClick={this.DBClick}>Search</button>
             </Actions>
           </HeadingRow>
+
+          <div>
+            <GoogleMap 
+              mapContainerStyle={mapContainerStyle}
+              zoom={12}
+              center={center}
+            >
+            </GoogleMap>
+
+          </div>
+
           <Posts>
             {this.state.posts.slice(0, this.state.visible).map((post, index) => (
               <PostContainer key={index} featured={post.featured}>
