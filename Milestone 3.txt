@@ -30,10 +30,11 @@ CREATE TABLE `main`.`Cuisine` (
   ON UPDATE NO ACTION);
 
 CREATE TABLE `main`.`FoodItem` (
-  `name` VARCHAR(200) NOT NULL,
-  `description` VARCHAR(200) NOT NULL,
+  `name` VARCHAR(250) NOT NULL,
+  `description` VARCHAR(250) NOT NULL,
   `price` FLOAT NULL,
   `rest_id` BIGINT NOT NULL,
+  `section_name` VARCHAR(250),
   PRIMARY KEY (`name`, `description`, `rest_id`), 
   CONSTRAINT `rest_id` 
   FOREIGN KEY (`rest_id`)
