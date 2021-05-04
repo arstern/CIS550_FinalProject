@@ -58,7 +58,6 @@ const Actions = styled.div`
   }
 `;
 
-///GOOGLE MAPS
 const mapContainerStyle = {
   width: "100vw",
   height: "50vh",
@@ -68,6 +67,26 @@ const center={
   lng: -74.005974,
 };
 
+///GOOGLE MAPS
+export function Map(){
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY
+  });
+  
+  if (loadError) return "Error loading maps";
+  if (!isLoaded) return "Loading Maps";
+
+  return (          <div>
+    <GoogleMap 
+      mapContainerStyle={mapContainerStyle}
+      zoom={12}
+      center={center}
+    >
+    </GoogleMap>
+
+  </div>)
+}
+////////////////////
 
 export default class ResultsPage extends React.Component {
   constructor(props){
@@ -93,6 +112,7 @@ export default class ResultsPage extends React.Component {
           getPlaceholderPost(),
           getPlaceholderPost(),
           getPlaceholderPost(),
+          getPlaceholderPost(),
           getPlaceholderPost()
       ]
     };
@@ -106,14 +126,6 @@ export default class ResultsPage extends React.Component {
   };
   
   componentDidMount() {
-
-    const { isLoaded, loadError } = useLoadScript({
-      googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY
-    });
-  
-    if (loadError) return "Error loading maps";
-    if (!isLoaded) return "Loading Maps";
-
     var query_food = localStorage.getItem('query_food');
     var query_cuisine = localStorage.getItem('query_cuisine') || ""
     console.log(query_cuisine + ", " + query_cuisine.length);
@@ -174,17 +186,7 @@ export default class ResultsPage extends React.Component {
               <button onClick={this.DBClick}>Search</button>
             </Actions>
           </HeadingRow>
-
-          <div>
-            <GoogleMap 
-              mapContainerStyle={mapContainerStyle}
-              zoom={12}
-              center={center}
-            >
-            </GoogleMap>
-
-          </div>
-
+          <Map/>
           <Posts>
             {this.state.posts.slice(0, this.state.visible).map((post, index) => (
               <PostContainer key={index} featured={post.featured}>
@@ -205,7 +207,7 @@ export default class ResultsPage extends React.Component {
             </ButtonContainer>
           )}
         </ContentWithPaddingXl>
-      </Container>
+      </Container>  
     </AnimationRevealPage>
   );
   }
