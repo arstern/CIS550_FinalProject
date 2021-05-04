@@ -8,7 +8,7 @@ import Header from "components/headers/light.js";
 import Footer from "components/footers/FiveColumnWithInputForm.js";
 import { SectionHeading } from "components/misc/Headings";
 import { PrimaryButton } from "components/misc/Buttons";
-import { GoogleMap, useLoadScript, Marker, InfoWindow } from "@react-google-maps/api";
+import { GoogleMap, LoadScript, useLoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 
 const HeadingRow = tw.div`flex`;
 const Heading = tw(SectionHeading)`text-gray-900`;
@@ -59,7 +59,7 @@ const Actions = styled.div`
 `;
 
 const mapContainerStyle = {
-  width: "100vw",
+  width: "89vw",
   height: "50vh",
 };
 const center={
@@ -68,24 +68,25 @@ const center={
 };
 
 ///GOOGLE MAPS
-export function Map(){
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY
-  });
+// export function Map(){
+//   const { isLoaded, loadError } = useLoadScript({
+//     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY
+//   });
   
-  if (loadError) return "Error loading maps";
-  if (!isLoaded) return "Loading Maps";
+//   if (loadError) return "Error loading maps";
+//   if (!isLoaded) return "Loading Maps";
 
-  return (          <div>
-    <GoogleMap 
-      mapContainerStyle={mapContainerStyle}
-      zoom={12}
-      center={center}
-    >
-    </GoogleMap>
+//   return (          
+//   <div>
+//     <GoogleMap 
+//       mapContainerStyle={mapContainerStyle}
+//       zoom={12}
+//       center={center}
+//     >
+//     </GoogleMap>
 
-  </div>)
-}
+//   </div>)
+// }
 ////////////////////
 
 export default class ResultsPage extends React.Component {
@@ -116,9 +117,39 @@ export default class ResultsPage extends React.Component {
           getPlaceholderPost()
       ]
     };
+    this.map = this.Map.bind(this);
     this.onLoadMoreClick = this.onLoadMoreClick.bind(this);
     this.DBClick = this.DBClick.bind(this);
+    this.reslist = null
   }
+
+  Map() {
+    console.log(this.reslist)
+    return (
+      <LoadScript
+        googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
+      >
+        <GoogleMap
+          mapContainerStyle={mapContainerStyle}
+          center={center}
+          zoom={12}
+        >
+          { /* Child components, such as markers, info windows, etc. */ }
+          <Marker
+              key={2}
+              position={{
+                lat: 40.712776,
+                lng: -74.005974
+              }}
+              //onClick={() => {
+              //  setSelectedRest(sampleData)
+              //}}
+          />
+        </GoogleMap>
+      </LoadScript>
+    )
+  }
+
   onLoadMoreClick (){
     this.setState({
           visible: this.state.visible + 3,
@@ -157,9 +188,10 @@ export default class ResultsPage extends React.Component {
         this.populate(resList);
       })
       .catch(err => console.log(err));
-  };
+    };
 
   populate(resList){
+      this.reslist = resList
       var actual_posts = this.state.posts
       for (var i =0; i < Math.min(resList.length, this.state.posts.length-1); i++ ){
         actual_posts[i+1]['title'] = resList[i]['restaurant_name']
@@ -186,7 +218,7 @@ export default class ResultsPage extends React.Component {
               <button onClick={this.DBClick}>Search</button>
             </Actions>
           </HeadingRow>
-          <Map/>
+          {this.Map()}
           <Posts>
             {this.state.posts.slice(0, this.state.visible).map((post, index) => (
               <PostContainer key={index} featured={post.featured}>
