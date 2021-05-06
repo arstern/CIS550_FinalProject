@@ -95,6 +95,7 @@ export default class ResultsPage extends React.Component {
     this.state = {
        headingText : "Results Page",
        visible: 4,
+       infowindow: null,
        posts : [
           {
             imageSrc:
@@ -120,11 +121,10 @@ export default class ResultsPage extends React.Component {
     this.map = this.Map.bind(this);
     this.onLoadMoreClick = this.onLoadMoreClick.bind(this);
     this.DBClick = this.DBClick.bind(this);
-    this.reslist = null
+    this.reslist = [{"restaurant_id": 0, "geo.lat": null, "geo.lon": null}]; //get rid of elements here once we have a search page (won't need default elements and can just have it be null)
   }
 
   Map() {
-    console.log(this.reslist)
     return (
       <LoadScript
         googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
@@ -132,19 +132,34 @@ export default class ResultsPage extends React.Component {
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
           center={center}
-          zoom={12}
+          zoom={10}
         >
           { /* Child components, such as markers, info windows, etc. */ }
-          <Marker
-              key={2}
+          {this.reslist.map((rest) => (
+            <Marker
+              key={rest['restaurant_id'].toString()}
               position={{
-                lat: 40.712776,
-                lng: -74.005974
+                lat: rest['geo.lat'],
+                lng: rest['geo.lon']
+                }}
+              onClick = {() => {
+                this.setState({infowindow: rest});
               }}
-              //onClick={() => {
-              //  setSelectedRest(sampleData)
-              //}}
-          />
+            />
+          ))
+          }
+
+          {/*if this.state.infowindow has a value, show info window, else null */}
+          {this.state.infowindow ? (
+          <InfoWindow 
+            position={{ lat: this.state.infowindow['geo.lat'], lng: this.state.infowindow['geo.lon'] }}
+            onCloseClick={() => {this.setState({infowindow: null})}}>
+            <div>
+              <h2> {this.state.infowindow['restaurant_name']} </h2>
+              <p> Click for more info! </p>
+            </div>
+          </InfoWindow>) : null}
+
         </GoogleMap>
       </LoadScript>
     )

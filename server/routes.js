@@ -13,7 +13,7 @@ function getFromCuisine(req, res) {
   
   // TODO: (3) - Edit query below
   var query = `
-    SELECT restaurant_name, c.restaurant_id as rid
+    SELECT *
     FROM Cuisine c JOIN Restaurant r ON r.restaurant_id = c.restaurant_id
     WHERE c.cuisine = "${inputCuisine}"
     LIMIT 10;
