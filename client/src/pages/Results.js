@@ -9,6 +9,7 @@ import Footer from "components/footers/FiveColumnWithInputForm.js";
 import { SectionHeading } from "components/misc/Headings";
 import { PrimaryButton } from "components/misc/Buttons";
 import { GoogleMap, LoadScript, useLoadScript, Marker, InfoWindow } from "@react-google-maps/api";
+import { NavLink } from 'react-router-dom'
 
 const HeadingRow = tw.div`flex`;
 const Heading = tw(SectionHeading)`text-gray-900`;
@@ -156,7 +157,7 @@ export default class ResultsPage extends React.Component {
             onCloseClick={() => {this.setState({infowindow: null})}}>
             <div>
               <h2> {this.state.infowindow['restaurant_name']} </h2>
-              <p> Click for more info! </p>
+              <p> Click <NavLink to={"/restaurant/" + this.state.infowindow['restaurant_id']}> here </NavLink> to see the menu! </p>
             </div>
           </InfoWindow>) : null}
 
@@ -210,7 +211,7 @@ export default class ResultsPage extends React.Component {
       var actual_posts = this.state.posts
       for (var i =0; i < Math.min(resList.length, this.state.posts.length-1); i++ ){
         actual_posts[i+1]['title'] = resList[i]['restaurant_name']
-        actual_posts[i+1]['url'] = "/restaurant/" + resList[i]['rid']
+        actual_posts[i+1]['url'] = "/restaurant/" + resList[i]['restaurant_id']
         //console.log(actual_posts[i]);
       }
       this.setState({
