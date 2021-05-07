@@ -68,28 +68,6 @@ const center={
   lng: -74.005974,
 };
 
-///GOOGLE MAPS
-// export function Map(){
-//   const { isLoaded, loadError } = useLoadScript({
-//     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY
-//   });
-  
-//   if (loadError) return "Error loading maps";
-//   if (!isLoaded) return "Loading Maps";
-
-//   return (          
-//   <div>
-//     <GoogleMap 
-//       mapContainerStyle={mapContainerStyle}
-//       zoom={12}
-//       center={center}
-//     >
-//     </GoogleMap>
-
-//   </div>)
-// }
-////////////////////
-
 export default class ResultsPage extends React.Component {
   constructor(props){
     super(props);
@@ -119,23 +97,30 @@ export default class ResultsPage extends React.Component {
           getPlaceholderPost()
       ]
     };
-    this.map = this.Map.bind(this);
+    this.mapRef = React.createRef();
+    this.onMapLoad = this.onMapLoad.bind(this);
     this.onLoadMoreClick = this.onLoadMoreClick.bind(this);
     this.DBClick = this.DBClick.bind(this);
-    this.reslist = [{"restaurant_id": 0, "geo.lat": null, "geo.lon": null}]; //get rid of elements here once we have a search page (won't need default elements and can just have it be null)
+    this.reslist = [{"restaurant_id": 0, "geo.lat": null, "geo.lon": null}]; //change to just null once we have a search page (won't need default elements and can just have it be null)
+  }
+
+  onMapLoad(map) {
+    this.mapRef.current = map
   }
 
   Map() {
+    //To do: get current location and show on map, pan and zoom to center around clicked marker
     return (
       <LoadScript
         googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
       >
         <GoogleMap
+          id='map'
           mapContainerStyle={mapContainerStyle}
           center={center}
           zoom={10}
+          onLoad={this.onMapLoad}
         >
-          { /* Child components, such as markers, info windows, etc. */ }
           {this.reslist.map((rest) => (
             <Marker
               key={rest['restaurant_id'].toString()}
@@ -144,7 +129,11 @@ export default class ResultsPage extends React.Component {
                 lng: rest['geo.lon']
                 }}
               onClick = {() => {
+                const lat = rest['geo.lat']
+                const lng = rest['geo.lon']
                 this.setState({infowindow: rest});
+                //this.mapRef.current.panTo({lat, lng})
+                //this.mapRef.current.setZoom(14)
               }}
             />
           ))
@@ -157,6 +146,7 @@ export default class ResultsPage extends React.Component {
             onCloseClick={() => {this.setState({infowindow: null})}}>
             <div>
               <h2> {this.state.infowindow['restaurant_name']} </h2>
+              <h2> {this.state.infowindow['price_range']} </h2>
               <p> Click <NavLink to={"/restaurant/" + this.state.infowindow['restaurant_id']}> here </NavLink> to see the menu! </p>
             </div>
           </InfoWindow>) : null}
