@@ -130,7 +130,6 @@ export default class Menu extends React.Component {
 
   getDeal(actual_food){
       for (const key in actual_food) {
-        console.log(key)
       var items = actual_food[key]
       for (var j = 0; j < items.length;j++){
           var item = items[j]
@@ -142,12 +141,14 @@ export default class Menu extends React.Component {
             const cat = deal_list[0]['category']
             const name = deal_list[0]['name']
             const p0 = parseFloat(deal_list[0]['price'])
+            console.log(name)
             for (var i = 0; i < actual_food[cat].length; i++){
-              if (actual_food[cat][i]['title'] == name){
+              if (actual_food[cat][i]['title'].toLowerCase() === name.toLowerCase()){
                 const p1 = parseFloat(actual_food[cat][i]['price'].substring(1))
                 var deal_percent = Math.round( 100 * (p1 - p0) / p0 * 100)/100 ;
-                console.log(p0 + ", " + p1 + " -> " + deal_percent)
-                actual_food[cat][i]['deal'] = deal_percent.toString() + "%"
+                console.log(cat + ", " + name)
+                console.log("     " + p0 + ", " + p1 + " -> " + deal_percent)
+                actual_food[cat][i]['deal'] = (deal_percent != null ) ? deal_percent.toString() + "%" : ""
                 this.setState({
                   tabs: actual_food
                 }); 
