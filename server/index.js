@@ -20,6 +20,9 @@ app.get('/dummy_search', routes.dummySearch);
 app.get('/cuisine_search/:cuisine', routes.cuisineSearch);
 app.get('/getName/:rid', routes.getName);
 app.get('/get_food_items/:rid', routes.getFoodItems);
+
+app.get('/get_tf', routes.getTF);
+app.get('/foodpics', routes.foodPics);
 /* ---- Part 2 (FindFriends) ---- */
 // TODO: (2) - Add route '/friends/:login' for the functionality of FindFriends page 
 //app.get('/friends/:login', routes.FindFriends); // Hint: Replace () => {} with the appropriate route handler in routes.js.

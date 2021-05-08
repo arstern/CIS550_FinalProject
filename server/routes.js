@@ -64,7 +64,7 @@ function getFoodItems(req, res){
   var inputId = req.params.rid;
 
   var query = `
-    SELECT name, price
+    SELECT *
     FROM FoodItem f
     WHERE f.rest_id = "${inputId}";
   `;
@@ -75,13 +75,38 @@ function getFoodItems(req, res){
       res.json(rows);
     }
   });
+};
 
-}
+function getFoodPics(req, res){
+  var query = `SELECT * FROM FoodPictures`;
+  connection.query(query, function(err, rows, fields) {
+    if (err) console.log(err);
+    else {
+      console.log(rows);
+      res.json(rows);
+    }
+  });
+};
+
+
+function getTF(req, res){
+  var query = `SELECT * FROM foodword_tf`;
+  connection.query(query, function(err, rows, fields) {
+    if (err) console.log(err);
+    else {
+      console.log(rows);
+      res.json(rows);
+    }
+  });
+};
+
 
 // The exported functions, which can be accessed in index.js.
 module.exports = {
   cuisineSearch: getFromCuisine,
   dummySearch : dummySearch,
   getName : getName,
-  getFoodItems, getFoodItems
+  getFoodItems : getFoodItems,
+  getTF : getTF,
+  foodPics : getFoodPics
 }

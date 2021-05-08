@@ -71,15 +71,10 @@ export default class Menu extends React.Component {
     const history = createBrowserHistory()
     const rid = /[^/]*$/.exec(history.location.pathname)[0];
     this.state = {
-      tabs: {
-          Starters: getRandomCards(),
-          Main: getRandomCards(),
-          Soup: getRandomCards(),
-          Desserts: getRandomCards(),
-        },
-        activeTab: "Starters",
-        name: "",
-        rid: rid
+      tabs: {},
+      activeTab: "",
+      name: "",
+      rid: rid
     }
     this.onSwitchSection = this.onSwitchSection.bind(this);
   }
@@ -90,7 +85,6 @@ export default class Menu extends React.Component {
   })
     .then(res => res.json()) // Convert the response data to a JSON.
     .then(name => {
-      console.log(name);
       this.setState({
         name: name[0]['restaurant_name']
       });
@@ -103,26 +97,22 @@ export default class Menu extends React.Component {
     })
     .then(res => res.json()) // Convert the response data to a JSON.
     .then(foodlist => {
-      var count = 0;
       var actual_food = this.state.tabs;
-      var sections = ['Starters', 'Main', 'Soup', 'Desserts'];
-      for (var s = 0; s<4; s++){
-        var tabName = sections[s];
-        for (var i = 0; i<this.state.tabs[tabName].length; i++){
-          actual_food[tabName][i]['title'] = foodlist[count]['name'];
-          actual_food[tabName][i]['price'] = "$" + foodlist[count]['price'];
-          actual_food[tabName][i]['content'] = '';          
-          if (count >= foodlist.length-1){
-            break;
-          }
-          count += 1;
+      
+      for (var i = 0; i<foodlist.length; i++){
+        var tabName = foodlist[i]['section_name']
+        if (!actual_food.hasOwnProperty(tabName)){
+          actual_food[tabName] = []
         }
+        actual_food[tabName].push({
+            title: foodlist[i]['name'],
+            price: ((foodlist[i]['price'] > 0) ? "$" + foodlist[i]['price'] : ""),
+            content: foodlist[i]['description'],
+            url: ''
+        });
       }
-      this.setState({
-        tabs: actual_food
-      });
-      console.log(actual_food);
-      // Set the state of the person list to the value returned by the HTTP response from the server.
+
+      this.getImage(actual_food);
     })
     .catch(err => console.log(err));
   }
@@ -134,6 +124,75 @@ export default class Menu extends React.Component {
           });
     }
   };
+
+  getImage(actual_food){
+    fetch("http://localhost:8082/get_tf", {
+    method: "GET", // The type of HTTP request.
+    })
+    .then(res => res.json())
+    .then(tflist =>{
+        
+        let tfmap = new Map();
+        for (var i = 0; i < tflist.length; i++){
+          tfmap.set(tflist[i]['word'].toLowerCase(), tflist[i]['tf']);
+        }
+        console.log("created TF")
+        console.log(tfmap.get("beef"));
+        fetch("http://localhost:8082/foodpics", {
+        method: "GET", // The type of HTTP request.
+        })
+        .then(res => res.json())
+        .then(pics =>{        
+        //for each word in actual food
+        var neverSeen = true
+        Object.keys(actual_food).forEach(function(key) {
+          var items = actual_food[key]
+          for (var j=0;j<items.length;j++){
+          var words = items[j]['title'].toLowerCase().split(" ");
+
+          //for each word in picture food            
+          var best_food = "";
+          var best_url = "";
+          var best_val = -1;
+          for (var fi=0; fi < pics.length; fi ++){
+            var pic_words = pics[fi]['food'].toLowerCase().split(" ");
+            var pic_val = 0
+            var tot = 0
+            for (var i=0; i<words.length; i++){
+
+              for (var wi=0; wi < pic_words.length; wi++){
+                // if (items[j]['title'] === ' Chicken with String Beans' && pics[fi]['food'].toLowerCase().startsWith(" chicken with string") ){
+                //   console.log("    " + pic_words[wi] + " ?? " + words[i])
+                // }
+                if (words[i] ===  pic_words[wi] && words[i].length > 0){
+                  pic_val += 1//tfmap.get(pic_words[wi].toLowerCase());
+                }else if (words[i].length > 0){
+                  tot += 1//tfmap.get(pic_words[wi].toLowerCase());
+                }
+              }
+              pic_val = Math.max(0, pic_val);
+              // if (items[j]['title'] === ' Chicken with String Beans' && pics[fi]['food'].toLowerCase().startsWith(" chicken with string") ){
+              //       console.log(items[j]['title'] + " <> " +pics[fi]['food'] + ", " + pic_val);
+              // }
+              if (pic_val > best_val){
+                best_val = pic_val;
+                best_url = pics[fi]['url'];
+                best_food = pics[fi]['food'];
+              }
+            }}
+            //foodname to picture 
+            items[j]['url'] = (best_url.substring(0,1) === '"') ? best_url.substring(1) : best_url;
+            console.log(items[j]['title'] + " -> " + best_food + ": " + pic_val +", " + tot);
+          }
+        });
+        console.log(actual_food)
+        this.setState({
+          tabs: actual_food
+        });
+      });
+    })
+    .catch(err => console.log(err));
+  }
 
 
 render(){
@@ -184,8 +243,8 @@ render(){
           >
             {this.state.tabs[tabKey].map((card, index) => (
               <CardContainer key={index}>
-                <Card className="group" href={card.url} initial="rest" whileHover="hover" animate="rest">
-                  <CardImageContainer imageSrc={card.imageSrc}>
+                <Card className="group" initial="rest" whileHover="hover" animate="rest">
+                  <CardImageContainer imageSrc={card.url}>
                     <CardRatingContainer>
                       <CardRating>
                         <StarIcon />
@@ -239,76 +298,6 @@ const getRandomCards = () => {
       price: "$5.99",
       rating: "5.0",
       reviews: "87",
-      url: "#"
-    },
-    {
-      imageSrc:
-        "https://images.unsplash.com/photo-1582254465498-6bc70419b607?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-      title: "Samsa Beef",
-      content: "Fried Mexican Beef",
-      price: "$3.99",
-      rating: "4.5",
-      reviews: "34",
-      url: "#"
-    },
-    {
-      imageSrc:
-        "https://images.unsplash.com/photo-1565310022184-f23a884f29da?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-      title: "Carnet Nachos",
-      content: "Chilli Crispy Nachos",
-      price: "$3.99",
-      rating: "3.9",
-      reviews: "26",
-      url: "#"
-    },
-    {
-      imageSrc:
-        "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-      title: "Guacamole Mex",
-      content: "Mexican Chilli",
-      price: "$3.99",
-      rating: "4.2",
-      reviews: "95",
-      url: "#"
-    },
-    {
-      imageSrc:
-        "https://images.unsplash.com/photo-1550461716-dbf266b2a8a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-      title: "Chillie Cake",
-      content: "Deepfried Chicken",
-      price: "$2.99",
-      rating: "5.0",
-      reviews: "61",
-      url: "#"
-    },
-    {
-      imageSrc:
-        "https://images.unsplash.com/photo-1476224203421-9ac39bcb3327??ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-      title: "Nelli",
-      content: "Hamburger & Fries",
-      price: "$7.99",
-      rating: "4.9",
-      reviews: "89",
-      url: "#"
-    },
-    {
-      imageSrc:
-        "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-      title: "Jalapeno Poppers",
-      content: "Crispy Soyabeans",
-      price: "$8.99",
-      rating: "4.6",
-      reviews: "12",
-      url: "#"
-    },
-    {
-      imageSrc:
-        "https://images.unsplash.com/photo-1473093226795-af9932fe5856?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-      title: "Cajun Chicken",
-      content: "Roasted Chicken & Egg",
-      price: "$7.99",
-      rating: "4.2",
-      reviews: "19",
       url: "#"
     }
   ];

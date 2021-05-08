@@ -1,0 +1,69 @@
+# import time
+# import csv
+
+# from selenium import webdriver
+# driver = webdriver.Chrome("C:/Users/jogo5/Documents/Docker/CIS550_FinalProject/chromedriver.exe")  # Optional argument, if not specified will search path.
+
+# import mysql.connector
+# cnx = mysql.connector.connect(user='admin', password='asacvtjg',
+#                               host='cis550-final-project.cmtv07pk5rbt.us-east-1.rds.amazonaws.com',
+#                               database='main')
+# cursor = cnx.cursor()
+
+# query = ("SELECT name FROM FoodItem LIMIT 8000;")
+
+# cursor.execute(query)
+
+# from collections import defaultdict
+# fooditems = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: 0)))
+# import re
+
+# count = -1
+# for (name) in cursor:
+# 	name = name[0]
+# 	food = re.sub(r'[^a-zA-Z ]+', '', name).lower()
+# 	url_food = food.replace(" ", "_")
+# 	count += 1
+# 	if count < 5000:
+# 		continue
+# 	if food in fooditems:
+# 		continue
+# 	try:
+# 		driver.get("https://www.123rf.com/stock-photo/" + url_food + ".html?sti=oajvn1s9lbqr7nd4ad|&oriSearch=chocolate%20banana%20shake");
+# 		results = driver.find_element_by_class_name('ImageSearch__containerSearchResult')
+# 		pics = results.find_elements_by_class_name('ImageThumbnail__link')
+# 		driver.get(pics[0].get_attribute("href"))
+# 		img = driver.find_element_by_id('compImg_link')
+# 		#print(img.get_attribute('href'))
+# 		#src = pic.get_attribute('srcset').split(" ")[0]
+# 		fooditems[food] = img.get_attribute('href')
+# 	except:
+# 		fooditems[food] = ""
+
+# 	if count % 10 == 0:
+# 		print(count)
+
+# with open('new_food2.csv', 'w', newline='') as csvfile:
+# 	cwriter = csv.writer(csvfile)
+# 	for item in fooditems:
+# 		if (len(fooditems[item]) > 0):
+# 			cwriter.writerow([item, fooditems[item]])
+
+# driver.quit()
+# ----------------------------------------------------
+import csv
+items = {}
+with open('new_food.csv', 'r', newline='') as csv1file:
+	with open('new_food2.csv', 'r', newline='') as csv2file:
+				for line in csv1file:
+					s = line.split(",")
+					items[s[0]] = s[1]
+				for line in csv2file:
+					s = line.split(",")
+					items[s[0]] = s[1]
+
+
+with open('new_food_pics.csv', 'w', newline='') as csvfile:
+	cwriter = csv.writer(csvfile)
+	for item in items:
+		cwriter.writerow([item, items[item]])
