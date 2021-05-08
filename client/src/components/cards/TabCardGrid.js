@@ -12,14 +12,15 @@ import { ReactComponent as SvgDecoratorBlob1 } from "images/svg-decorator-blob-5
 import { ReactComponent as SvgDecoratorBlob2 } from "images/svg-decorator-blob-7.svg";
 import AnimationRevealPage from "helpers/AnimationRevealPage.js";
 import Footer from "components/footers/FiveColumnWithInputForm.js";
+import BigHeader from "components/headers/light.js";
 import { createBrowserHistory } from "history";
 
 const HeaderRow = tw.div`flex justify-between items-center flex-col xl:flex-row`;
-const Header = tw(SectionHeading)``;
+ const Header = tw(SectionHeading)`self-center`;
 const TabsControl = tw.div`flex flex-wrap bg-gray-200 px-2 py-2 rounded leading-none mt-12 xl:mt-0`;
 
 const TabControl = styled.div`
-  ${tw`cursor-pointer px-6 py-3 mt-2 sm:mt-0 sm:mr-2 last:mr-0 text-gray-600 font-medium rounded-sm transition duration-300 text-sm sm:text-base w-1/2 sm:w-auto text-center`}
+  ${tw`cursor-pointer px-10 self-center py-3 mt-2 sm:mt-0 sm:mr-2 last:mr-0 text-gray-600 font-medium rounded-sm transition duration-300 text-sm sm:text-base w-64 sm:w-auto text-center`}
   &:hover {
     ${tw`bg-gray-300 text-gray-700`}
   }
@@ -108,7 +109,8 @@ export default class Menu extends React.Component {
             title: foodlist[i]['name'],
             price: ((foodlist[i]['price'] > 0) ? "$" + foodlist[i]['price'] : ""),
             content: foodlist[i]['description'],
-            url: ''
+            url: '',
+            section: tabName
         });
       }
 
@@ -148,41 +150,52 @@ export default class Menu extends React.Component {
         Object.keys(actual_food).forEach(function(key) {
           var items = actual_food[key]
           for (var j=0;j<items.length;j++){
-          var words = items[j]['title'].toLowerCase().split(" ");
-
+          var original_words = items[j]['title'].toLowerCase().split(" ")
+          var title_words = items[j]['section'].toLowerCase().split(" ");
+          var words = original_words.concat( title_words )
+          var singular = []
+          for (var w=0;w<words.length;w++){
+            if (words[w].endsWith("s")){
+              singular.push(words[w].substring(0, words[w].length-1));
+            }
+          }
+          words = words.concat( singular )
+          console.log(words)
           //for each word in picture food            
           var best_food = "";
           var best_url = "";
           var best_val = -1;
+          var quick_end = original_words.length
           for (var fi=0; fi < pics.length; fi ++){
             var pic_words = pics[fi]['food'].toLowerCase().split(" ");
             var pic_val = 0
-            var tot = 0
+            var tot = 0;
+            var seen_word = new Map();
             for (var i=0; i<words.length; i++){
-
               for (var wi=0; wi < pic_words.length; wi++){
-                // if (items[j]['title'] === ' Chicken with String Beans' && pics[fi]['food'].toLowerCase().startsWith(" chicken with string") ){
-                //   console.log("    " + pic_words[wi] + " ?? " + words[i])
-                // }
-                if (words[i] ===  pic_words[wi] && words[i].length > 0){
-                  pic_val += 1//tfmap.get(pic_words[wi].toLowerCase());
+                if (words[i] ===  pic_words[wi] && words[i].length > 0 && !seen_word.has(words[i])){
+                  if (i < quick_end)
+                    pic_val += 1//tfmap.get(pic_words[wi].toLowerCase());
+                  else
+                    pic_val += 0.1
+                  seen_word.set(words[i], true);
                 }else if (words[i].length > 0){
-                  tot += 1//tfmap.get(pic_words[wi].toLowerCase());
+                  tot += 0.0001//tfmap.get(pic_words[wi].toLowerCase());
                 }
               }
-              pic_val = Math.max(0, pic_val);
-              // if (items[j]['title'] === ' Chicken with String Beans' && pics[fi]['food'].toLowerCase().startsWith(" chicken with string") ){
-              //       console.log(items[j]['title'] + " <> " +pics[fi]['food'] + ", " + pic_val);
-              // }
-              if (pic_val > best_val){
-                best_val = pic_val;
-                best_url = pics[fi]['url'];
-                best_food = pics[fi]['food'];
-              }
-            }}
-            //foodname to picture 
-            items[j]['url'] = (best_url.substring(0,1) === '"') ? best_url.substring(1) : best_url;
-            console.log(items[j]['title'] + " -> " + best_food + ": " + pic_val +", " + tot);
+              
+            }
+            pic_val = Math.max(0, pic_val - tot);
+
+            if (pic_val > best_val){
+              best_val = pic_val;
+              best_url = pics[fi]['url'];
+              best_food = pics[fi]['food'];
+            }
+          }
+          //foodname to picture 
+          items[j]['url'] = (best_url.substring(0,1) === '"') ? best_url.substring(1) : best_url;
+          console.log(items[j]['title'] + " -> " + best_food + ": " + best_val);
           }
         });
         console.log(actual_food)
@@ -206,11 +219,12 @@ render(){
  
   return (
     <AnimationRevealPage>
+    <BigHeader />
     <Container>
       <ContentWithPaddingXl>
         <HeaderRow>
           <Header> {this.state.name} <HighlightedText>menu.</HighlightedText> </Header> 
-
+        </HeaderRow>
           <TabsControl>
             {tabsKeys.map((tabName, index) => (
               <TabControl key={index} active={this.state.activeTab === tabName} onClick={()=> this.onSwitchSection(tabName) } >
@@ -219,7 +233,7 @@ render(){
               </TabControl>
             ))}
           </TabsControl>        
-        </HeaderRow>
+        
 
         
         {tabsKeys.map((tabKey, index) => (
