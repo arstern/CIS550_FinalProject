@@ -7,7 +7,8 @@ import { css } from "styled-components/macro"; //eslint-disable-line
 import { Container, ContentWithPaddingXl } from "components/misc/Layouts.js";
 import { SectionHeading } from "components/misc/Headings.js";
 import { PrimaryButton as PrimaryButtonBase } from "components/misc/Buttons.js";
-import { ReactComponent as StarIcon } from "images/star-icon.svg";
+// import { ReactComponent as StarIcon } from "images/checkbox-circle.svg";
+import { ReactComponent as StarIcon } from "images/reliable-icon.svg";
 import { ReactComponent as SvgDecoratorBlob1 } from "images/svg-decorator-blob-5.svg";
 import { ReactComponent as SvgDecoratorBlob2 } from "images/svg-decorator-blob-7.svg";
 import AnimationRevealPage from "helpers/AnimationRevealPage.js";
@@ -110,10 +111,10 @@ export default class Menu extends React.Component {
             price: ((foodlist[i]['price'] > 0) ? "$" + foodlist[i]['price'] : ""),
             content: foodlist[i]['description'],
             url: '',
+            deal: "0%",
             section: tabName
         });
       }
-
       this.getImage(actual_food);
     })
     .catch(err => console.log(err));
@@ -127,9 +128,42 @@ export default class Menu extends React.Component {
     }
   };
 
+  getDeal(actual_food){
+      for (const key in actual_food) {
+        console.log(key)
+      var items = actual_food[key]
+      for (var j = 0; j < items.length;j++){
+          var item = items[j]
+          fetch("http://localhost:8082/get_deal/" + item['title'] + "/" + key, {
+            method: "GET", 
+          })
+          .then(res => res.json())
+          .then(deal_list =>{
+            const cat = deal_list[0]['category']
+            const name = deal_list[0]['name']
+            const p0 = parseFloat(deal_list[0]['price'])
+            for (var i = 0; i < actual_food[cat].length; i++){
+              if (actual_food[cat][i]['title'] == name){
+                const p1 = parseFloat(actual_food[cat][i]['price'].substring(1))
+                var deal_percent = Math.round( 100 * (p1 - p0) / p0 * 100)/100 ;
+                console.log(p0 + ", " + p1 + " -> " + deal_percent)
+                actual_food[cat][i]['deal'] = deal_percent.toString() + "%"
+                this.setState({
+                  tabs: actual_food
+                }); 
+                break
+              }
+            }
+          })
+          .catch(err => console.log(err));
+
+      } }
+
+  }
+
   getImage(actual_food){
     fetch("http://localhost:8082/get_tf", {
-    method: "GET", // The type of HTTP request.
+    method: "GET",
     })
     .then(res => res.json())
     .then(tflist =>{
@@ -138,8 +172,6 @@ export default class Menu extends React.Component {
         for (var i = 0; i < tflist.length; i++){
           tfmap.set(tflist[i]['word'].toLowerCase(), tflist[i]['tf']);
         }
-        console.log("created TF")
-        console.log(tfmap.get("beef"));
         fetch("http://localhost:8082/foodpics", {
         method: "GET", // The type of HTTP request.
         })
@@ -160,7 +192,8 @@ export default class Menu extends React.Component {
             }
           }
           words = words.concat( singular )
-          console.log(words)
+          //console.log(words)
+
           //for each word in picture food            
           var best_food = "";
           var best_url = "";
@@ -195,13 +228,10 @@ export default class Menu extends React.Component {
           }
           //foodname to picture 
           items[j]['url'] = (best_url.substring(0,1) === '"') ? best_url.substring(1) : best_url;
-          console.log(items[j]['title'] + " -> " + best_food + ": " + best_val);
+          //console.log(items[j]['title'] + " -> " + best_food + ": " + best_val);
           }
         });
-        console.log(actual_food)
-        this.setState({
-          tabs: actual_food
-        });
+        this.getDeal(actual_food);
       });
     })
     .catch(err => console.log(err));
@@ -261,26 +291,10 @@ render(){
                   <CardImageContainer imageSrc={card.url}>
                     <CardRatingContainer>
                       <CardRating>
-                        <StarIcon />
-                        {card.rating}
+                        <StarIcon/>
+                        {card.deal}
                       </CardRating>
-                      <CardReview>({card.reviews})</CardReview>
                     </CardRatingContainer>
-                    <CardHoverOverlay
-                      variants={{
-                        hover: {
-                          opacity: 1,
-                          height: "auto"
-                        },
-                        rest: {
-                          opacity: 0,
-                          height: 0
-                        }
-                      }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <CardButton>Buy Now</CardButton>
-                    </CardHoverOverlay>
                   </CardImageContainer>
                   <CardText>
                     <CardTitle>{card.title}</CardTitle>
@@ -301,21 +315,3 @@ render(){
   }
 };
 
-/* This function is only there for demo purposes. It populates placeholder cards */
-const getRandomCards = () => {
-  const cards = [
-    {
-      imageSrc:
-        "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-      title: "Chicken Chilled",
-      content: "Chicken Main Course",
-      price: "$5.99",
-      rating: "5.0",
-      reviews: "87",
-      url: "#"
-    }
-  ];
-
-  // Shuffle array
-  return cards.sort(() => Math.random() - 0.5);
-};

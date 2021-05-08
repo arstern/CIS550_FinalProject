@@ -21,7 +21,6 @@ function getFromCuisine(req, res) {
   connection.query(query, function(err, rows, fields) {
     if (err) console.log(err);
     else {
-      console.log(rows);
       res.json(rows);
     }
   });
@@ -38,7 +37,6 @@ function getName(req, res) {
   connection.query(query, function(err, rows, fields) {
     if (err) console.log(err);
     else {
-      console.log(rows);
       res.json(rows);
     }
   });
@@ -54,7 +52,6 @@ function dummySearch(req, res) {
   connection.query(query, function(err, rows, fields) {
     if (err) console.log(err);
     else {
-      console.log(rows);
       res.json(rows);
     }
   });
@@ -71,7 +68,6 @@ function getFoodItems(req, res){
   connection.query(query, function(err, rows, fields) {
     if (err) console.log(err);
     else {
-      console.log(rows);
       res.json(rows);
     }
   });
@@ -82,7 +78,6 @@ function getFoodPics(req, res){
   connection.query(query, function(err, rows, fields) {
     if (err) console.log(err);
     else {
-      console.log(rows);
       res.json(rows);
     }
   });
@@ -94,7 +89,24 @@ function getTF(req, res){
   connection.query(query, function(err, rows, fields) {
     if (err) console.log(err);
     else {
-      console.log(rows);
+      res.json(rows);
+    }
+  });
+};
+
+function getItemDeal(req, res){
+  var foodName = req.params.food;
+  var cat = req.params.category;
+
+  var query = `
+    SELECT name, AVG(price) as price, "${cat}" as category
+    FROM average_price_by_name_cuisine
+    WHERE name = "${foodName}"
+    GROUP BY name;
+  `;
+  connection.query(query, function(err, rows, fields) {
+    if (err) console.log(err);
+    else {
       res.json(rows);
     }
   });
@@ -108,5 +120,6 @@ module.exports = {
   getName : getName,
   getFoodItems : getFoodItems,
   getTF : getTF,
-  foodPics : getFoodPics
+  foodPics : getFoodPics,
+  getDeal : getItemDeal
 }
