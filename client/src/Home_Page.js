@@ -8,9 +8,10 @@ import Header from "components/headers/light.js";
 import Footer from "components/footers/FiveColumnWithInputForm.js";
 import { SectionHeading } from "components/misc/Headings";
 import { PrimaryButton } from "components/misc/Buttons";
-import DropdownButton from 'react-bootstrap/DropdownButton'
-import Dropdown from 'react-bootstrap/Dropdown'
-import SplitButton from 'react-bootstrap/SplitButton'
+import DropdownButton from 'react-bootstrap/DropdownButton';
+import Dropdown from 'react-bootstrap/Dropdown';
+import { Link } from "react-router-dom";
+//import SplitButton from 'react-bootstrap/SplitButton'
 
 
 //import { createPopper } from '@popperjs/core';
@@ -82,6 +83,7 @@ export default class ResultsPage extends React.Component {
        showPriceDropdown: false,
        showLocDropdown : false,
        showCuisineDropdown : false,
+       showMainSearch : true,
        posts : [
           {
             imageSrc:
@@ -131,6 +133,7 @@ export default class ResultsPage extends React.Component {
       this.setState({
           showLocDropdown : true,
           showCuisineDropdown : true,
+          showMainSearch : false,
         });
     };
 
@@ -181,33 +184,22 @@ export default class ResultsPage extends React.Component {
 //         });
 // };
 
-
+ZipPriceClick () {
+  localStorage.setItem('query_cuisine', document.getElementById('textbox_id').value);
+  localStorage.setItem('query_lat', 0);
+  localStorage.setItem('query_lon', 0);
+  localStorage.setItem('query_borough', document.getElementById("Location_Selection_Button").value);
+  console.log(document.getElementById("Location_Selection_Button"));
+  localStorage.setItem('query_price', document.getElementById("Price_Range_Selection_Button").value);
+}
 
   DBClick(){
    console.log( document.getElementById('textbox_id').value ) 
    localStorage.setItem('query_cuisine', document.getElementById('textbox_id').value);
-   console.log("Stored: " + localStorage.getItem('query_cuisine'));
-   fetch("http://localhost:8082/cuisine_search/" + document.getElementById('textbox_id').value  , {
-      method: "GET", // The type of HTTP request.
-    })
-      .then(res => res.json()) // Convert the response data to a JSON.
-      .then(resList => {
-        this.populate(resList);
-      })
-      .catch(err => console.log(err));
-  };
-
-  populate(resList){
-      var actual_posts = this.state.posts
-      for (var i =0; i < Math.min(resList.length, this.state.posts.length-1); i++ ){
-        actual_posts[i+1]['title'] = resList[i]['restaurant_name']
-        actual_posts[i+1]['url'] = "/restaurant/" + resList[i]['rid']
-        //console.log(actual_posts[i]);
-      }
-      this.setState({
-        posts: actual_posts,
-        visible: 4
-      });
+   localStorage.setItem('query_lat', 0);
+   localStorage.setItem('query_lon', 0);
+   localStorage.setItem('query_borough', null);
+   localStorage.setItem('query_price', null);
   }
 
   render(){
@@ -215,6 +207,7 @@ export default class ResultsPage extends React.Component {
     const showPriceDropdown =this.state.showPriceDropdown;
     const showLocDropdown = this.state.showLocDropdown;
     const showCuisineDropdown = this.state.showCuisineDropdown;
+    const showMainSearch = this.state.showMainSearch;
   return (
     <AnimationRevealPage>
       <Header />
@@ -225,24 +218,19 @@ export default class ResultsPage extends React.Component {
             <PaddingDiv> </PaddingDiv>
             <Actions>
               <input type="text" id='textbox_id' placeholder="Enter Dish" />
-              <button onClick={this.DBClick}>Search</button>
             </Actions>
+            {showMainSearch &&(
+              <Actions>
+              <Link to="/results">
+              <button onClick={this.DBClick}>Search</button>
+              </Link>
+            </Actions>)}
           </HeadingRow>
         {/* Add in the Cuisine and Location Search Buttons */}
         <ButtonContainer>
-              <LocCuisineButton onClick={this.onLocCuisineButtonClick}>Want To Find All Restaurants Of A Certain Cuisine In A Certain Borough? Click Here!</LocCuisineButton>
+              <LocCuisineButton onClick={this.onLocCuisineButtonClick}>Want To Try An Advanced Search? Click Here!</LocCuisineButton>
         </ButtonContainer>
         <div>
-        {showCuisineDropdown && (
-          <DropdownButton id="Cuisine_Selection_Button" title="Select Cuisine">
-            <Dropdown.Item href="#/chinese">Select Chinese</Dropdown.Item>
-            <Dropdown.Item href="#/italian">Select Italian</Dropdown.Item>
-            <Dropdown.Item href="#/indian">Select Indian</Dropdown.Item>
-          </DropdownButton>)}
-          { showLocDropdown &&(
-          <Actions>
-              <button onClick={this.DBClick}>Search</button>
-            </Actions>)}
           {showLocDropdown &&(
           <DropdownButton id="Location_Selection_Button" title="Select Borough">
             <Dropdown.Item href="#/brooklyn">Select Brooklyn</Dropdown.Item>
@@ -250,14 +238,36 @@ export default class ResultsPage extends React.Component {
             <Dropdown.Item href="#/manhattan">Select Manhattan</Dropdown.Item>
             <Dropdown.Item href="#/bronx">Select Bronx</Dropdown.Item>
             <Dropdown.Item href="#/staten_island">Select Staten Island</Dropdown.Item>
+            <Dropdown.Item href="#/bronx">Select Any</Dropdown.Item>
           </DropdownButton>)}
+          {showLocDropdown &&(
+          <Actions>
+            <input type="text" id="zipcode_text_box" placeholder="Enter Latitude"/>
+          </Actions>)}
+          {showLocDropdown &&(
+          <Actions>
+            <input type="text" id="zipcode_text_box" placeholder="Enter Longitude"/>
+          </Actions>)}
+          {showLocDropdown && (
+        <DropdownButton id="Price_Range_Selection_Button" title="Select Price Range">
+            <Dropdown.Item href="#/price_range_1">$</Dropdown.Item>
+            <Dropdown.Item href="#/price_range_2">$$</Dropdown.Item>
+            <Dropdown.Item href="#/price_range_3">$$$</Dropdown.Item>
+            <Dropdown.Item href="#/price_range_3">$$$$</Dropdown.Item>
+            <Dropdown.Item href="#/price_range_3">$$$$$</Dropdown.Item>
+            <Dropdown.Item href="#/price_range_3">Select Any</Dropdown.Item>
+        </DropdownButton>)}
           </div>
-        {/* Add in the Advanced Search Button */}
+          { showLocDropdown &&(
+          <Actions>
+              <button onClick={this.DBClick} href="/results">Search</button>
+            </Actions>)}
+        {/* Add in the Advanced Search Button
         <ButtonContainer>
               <AdvancedSearchButtonShow onClick={this.onAdvancedSearchButtonShowClick}>Want To Find Restaruants In A Certain Price Range Near You? Click Here!</AdvancedSearchButtonShow>
         </ButtonContainer>
-         {/* Add in buttons that appear when Advanced Search Button is Clicked */}
-         {/* CHECK how many price ranges there are */}
+         {/* Add in buttons that appear when Advanced Search Button is Clicked 
+         /* CHECK how many price ranges there are
         {showZipCodeButton && (      
         <Actions>
             <input type="text" id="zipcode_text_box" placeholder="Enter Zipcode"/>
@@ -268,11 +278,14 @@ export default class ResultsPage extends React.Component {
             <Dropdown.Item href="#/price_range_1">$</Dropdown.Item>
             <Dropdown.Item href="#/price_range_2">$$</Dropdown.Item>
             <Dropdown.Item href="#/price_range_3">$$$</Dropdown.Item>
+            <Dropdown.Item href="#/price_range_3">$$$$</Dropdown.Item>
+            <Dropdown.Item href="#/price_range_3">$$$$$</Dropdown.Item>
+            <Dropdown.Item href="#/price_range_3">Select Any</Dropdown.Item>
         </DropdownButton>)}
         {showZipCodeButton && (
         <ButtonContainer>
-            <AdvancedSearchButton onClick={this.DBClick}>Search</AdvancedSearchButton>
-        </ButtonContainer>)}
+            <AdvancedSearchButton onClick={this.ZipPriceClick}>Search</AdvancedSearchButton>
+        </ButtonContainer>)}*/}
 
           <Posts>
             {this.state.posts.slice(0, this.state.visible).map((post, index) => (
