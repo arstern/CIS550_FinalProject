@@ -15,8 +15,7 @@ function getFromCuisine(req, res) {
   var query = `
     SELECT *
     FROM Cuisine c JOIN Restaurant r ON r.restaurant_id = c.restaurant_id
-    WHERE c.cuisine = "${inputCuisine}"
-    LIMIT 10;
+    WHERE c.cuisine = "${inputCuisine}";
   `;
   connection.query(query, function(err, rows, fields) {
     if (err) console.log(err);

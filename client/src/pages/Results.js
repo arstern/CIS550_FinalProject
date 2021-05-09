@@ -75,15 +75,17 @@ export default class ResultsPage extends React.Component {
        headingText : "Results Page",
        visible: 4,
        infowindow: null,
+       new_posts: [],
+       reslist: [{"restaurant_id": 0, "geo.lat": null, "geo.lon": null}],  //change to just null once we have a search page (won't need default elements and can just have it be null)
        posts : [
           {
             imageSrc:
-              "https://observer.com/wp-content/uploads/sites/2/2015/02/screen-shot-2015-02-06-at-3-25-41-pm.png?quality=80&strip",
-            category: "Cool MAp THING",
+              "https://www.bhc.edu/wp-content/uploads/2017/09/hello-585289042.jpg",
+            category: "Featured Restaurant",
             date: "April 21, 2020",
-            title: "See Restaurants and Click on Map",
+            title: "Restaurant Name",
             description:
-              "Click on the pin of a restaurant to see more information about it.",
+              "Change dynamically based on the complex query used to fill in this restaurant",
             featured: true
           },
           getPlaceholderPost(),
@@ -101,7 +103,6 @@ export default class ResultsPage extends React.Component {
     this.onMapLoad = this.onMapLoad.bind(this);
     this.onLoadMoreClick = this.onLoadMoreClick.bind(this);
     this.DBClick = this.DBClick.bind(this);
-    this.reslist = [{"restaurant_id": 0, "geo.lat": null, "geo.lon": null}]; //change to just null once we have a search page (won't need default elements and can just have it be null)
   }
 
   onMapLoad(map) {
@@ -109,7 +110,7 @@ export default class ResultsPage extends React.Component {
   }
 
   Map() {
-    //To do: get current location and show on map, pan and zoom to center around clicked marker
+
     return (
       <LoadScript
         googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
@@ -121,19 +122,19 @@ export default class ResultsPage extends React.Component {
           zoom={10}
           onLoad={this.onMapLoad}
         >
-          {this.reslist.map((rest) => (
+          {this.state.reslist.map((rest) => (
             <Marker
               key={rest['restaurant_id'].toString()}
               position={{
-                lat: rest['geo.lat'],
-                lng: rest['geo.lon']
+                lat: rest['lat'],
+                lng: rest['lon']
                 }}
               onClick = {() => {
-                const lat = rest['geo.lat']
-                const lng = rest['geo.lon']
+                const lat = rest['lat']
+                const lng = rest['lon']
                 this.setState({infowindow: rest});
-                //this.mapRef.current.panTo({lat, lng})
-                //this.mapRef.current.setZoom(14)
+                this.mapRef.current.panTo({lat, lng})
+                this.mapRef.current.setZoom(15)
               }}
             />
           ))
@@ -142,12 +143,12 @@ export default class ResultsPage extends React.Component {
           {/*if this.state.infowindow has a value, show info window, else null */}
           {this.state.infowindow ? (
           <InfoWindow 
-            position={{ lat: this.state.infowindow['geo.lat'], lng: this.state.infowindow['geo.lon'] }}
+            position={{ lat: this.state.infowindow['lat'], lng: this.state.infowindow['lon'] }}
             onCloseClick={() => {this.setState({infowindow: null})}}>
             <div>
               <h2> {this.state.infowindow['restaurant_name']} </h2>
               <h2> {this.state.infowindow['price_range']} </h2>
-              <p> Click <NavLink to={"/restaurant/" + this.state.infowindow['restaurant_id']}> here </NavLink> to see the menu! </p>
+              <NavLink to={"/restaurant/" + this.state.infowindow['restaurant_id']}> Click here to see the menu </NavLink>
             </div>
           </InfoWindow>) : null}
 
@@ -177,12 +178,13 @@ export default class ResultsPage extends React.Component {
     })
       .then(res => res.json()) // Convert the response data to a JSON.
       .then(resList => {
-        this.populate(resList);
+        this.new_populate(resList);
       })
       .catch(err => console.log(err));
   }
 
   DBClick(){
+   this.setState({new_posts: []})
    console.log( document.getElementById('textbox_id').value ) 
    localStorage.setItem('query_cuisine', document.getElementById('textbox_id').value);
    console.log("Stored: " + localStorage.getItem('query_cuisine'));
@@ -191,13 +193,12 @@ export default class ResultsPage extends React.Component {
     })
       .then(res => res.json()) // Convert the response data to a JSON.
       .then(resList => {
-        this.populate(resList);
+        this.new_populate(resList);
       })
       .catch(err => console.log(err));
     };
 
   populate(resList){
-      this.reslist = resList
       var actual_posts = this.state.posts
       for (var i =0; i < Math.min(resList.length, this.state.posts.length-1); i++ ){
         actual_posts[i+1]['title'] = resList[i]['restaurant_name']
@@ -205,9 +206,29 @@ export default class ResultsPage extends React.Component {
         //console.log(actual_posts[i]);
       }
       this.setState({
+        reslist: resList,
         posts: actual_posts,
         visible: 4
       });
+  }
+
+  new_populate(resList) {
+    var posts_list = Array()
+    posts_list.push(this.state.posts[0])
+    for (var i =0; i < resList.length; i++ ){
+      posts_list.push({"title": resList[i]['restaurant_name'],
+                        "url": "/restaurant/" + resList[i]['restaurant_id'],
+                        "imageSrc": getPlaceholderPost()["imageSrc"]})
+    }
+    this.setState({
+      reslist: resList,
+      new_posts: posts_list,
+      visible: 4
+    });
+  }
+
+  featured(resList) {
+    //modify the first element of this.state.posts_list to have the restaurant information that is returned by complex query
   }
 
   render(){
@@ -226,7 +247,7 @@ export default class ResultsPage extends React.Component {
           </HeadingRow>
           {this.Map()}
           <Posts>
-            {this.state.posts.slice(0, this.state.visible).map((post, index) => (
+            {this.state.new_posts.slice(0, this.state.visible).map((post, index) => (
               <PostContainer key={index} featured={post.featured}>
                 <Post className="group" as="a" href={post.url}>
                   <Image imageSrc={post.imageSrc} />
@@ -239,7 +260,7 @@ export default class ResultsPage extends React.Component {
               </PostContainer>
             ))}
           </Posts>
-          {this.state.visible < this.state.posts.length && (
+          {this.state.visible < this.state.new_posts.length && (
             <ButtonContainer>
               <LoadMoreButton onClick={this.onLoadMoreClick}>Load More</LoadMoreButton>
             </ButtonContainer>
