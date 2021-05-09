@@ -76,7 +76,7 @@ export default class ResultsPage extends React.Component {
        visible: 4,
        infowindow: null,
        new_posts: [],
-       reslist: [{"restaurant_id": 0, "geo.lat": null, "geo.lon": null}],  //change to just null once we have a search page (won't need default elements and can just have it be null)
+       reslist: [{"restaurant_id": 0, "lat": null, "lon": null}],
        posts : [
           {
             imageSrc:
@@ -110,7 +110,6 @@ export default class ResultsPage extends React.Component {
   }
 
   Map() {
-
     return (
       <LoadScript
         googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
@@ -122,9 +121,10 @@ export default class ResultsPage extends React.Component {
           zoom={10}
           onLoad={this.onMapLoad}
         >
+
           {this.state.reslist.map((rest) => (
             <Marker
-              key={rest['restaurant_id'].toString()}
+              key={rest['restaurant_id']}
               position={{
                 lat: rest['lat'],
                 lng: rest['lon']
@@ -164,12 +164,41 @@ export default class ResultsPage extends React.Component {
   };
   
   componentDidMount() {
-    var query_food = localStorage.getItem('query_food');
-    var query_cuisine = localStorage.getItem('query_cuisine') || ""
-    console.log(query_cuisine + ", " + query_cuisine.length);
+    this.setState({new_posts: []})
+    var db_url = ""
+    var db_attributes = ""
+    var query_cuisine = localStorage.getItem('query_cuisine')
+    if (query_cuisine != null || query_cuisine.length != 0){
+      db_url += 'c'
+      db_attributes += query_cuisine + "/"
+    }
+
+    var query_lat = localStorage.getItem('query_lat')
+    var query_long = localStorage.getItem('query_lon')
+    if (query_lat != null && query_long != null){
+      db_url += 'l'
+      db_attributes += query_lat + "/" + query_long + "/"
+    }
+    
+
+    var query_borough = localStorage.getItem('query_borough')
+    if (query_borough != null){
+      db_url += 'b'
+      db_attributes += query_borough + "/"
+    }
+
+    var query_price = localStorage.getItem('query_price')
+    if (query_price != null){
+      db_url += 'p'
+      db_attributes += query_price + "/"
+    }
+
+    console.log(db_url);
+    db_url = 'lb'
+    db_attributes = '40.7831/-73.97/Manhattan/'
     var query = "http://localhost:8082/dummy_search/";
-    if (query_cuisine != null && query_cuisine.length != 0) {
-      var query = "http://localhost:8082/cuisine_search/" + query_cuisine
+    if (db_url.length > 0) {
+      var query = "http://localhost:8082/" + db_url +"_search/" + db_attributes
     }
     console.log(query)
 

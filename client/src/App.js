@@ -103,10 +103,10 @@ import SaaSProductLandingPage from "demos/SaaSProductLandingPage.js";
 
 import ComponentRenderer from "ComponentRenderer.js";
 import MainLandingPage from "MainLandingPage.js";
-import ThankYouPage from "ThankYouPage.js";
 
 import RestaurantLandingPage from "components/cards/TabCardGrid.js";
 import ResultsPage from "pages/Results.js";
+import HomePage from "Home_Page.js"
 
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 
@@ -121,8 +121,11 @@ export default function App() {
         <Route path="/restaurant/:rid">
           <RestaurantLandingPage/>
         </Route>
-        <Route path="/">
+        <Route path="/results">
           <ResultsPage/>
+        </Route>
+        <Route path="/">
+          <HomePage/>
         </Route>
 
       </Switch>

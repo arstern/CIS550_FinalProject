@@ -7,19 +7,21 @@ import { css } from "styled-components/macro"; //eslint-disable-line
 import { Container, ContentWithPaddingXl } from "components/misc/Layouts.js";
 import { SectionHeading } from "components/misc/Headings.js";
 import { PrimaryButton as PrimaryButtonBase } from "components/misc/Buttons.js";
-import { ReactComponent as StarIcon } from "images/star-icon.svg";
+// import { ReactComponent as StarIcon } from "images/checkbox-circle.svg";
+import { ReactComponent as StarIcon } from "images/reliable-icon.svg";
 import { ReactComponent as SvgDecoratorBlob1 } from "images/svg-decorator-blob-5.svg";
 import { ReactComponent as SvgDecoratorBlob2 } from "images/svg-decorator-blob-7.svg";
 import AnimationRevealPage from "helpers/AnimationRevealPage.js";
 import Footer from "components/footers/FiveColumnWithInputForm.js";
+import BigHeader from "components/headers/light.js";
 import { createBrowserHistory } from "history";
 
 const HeaderRow = tw.div`flex justify-between items-center flex-col xl:flex-row`;
-const Header = tw(SectionHeading)``;
+ const Header = tw(SectionHeading)`self-center`;
 const TabsControl = tw.div`flex flex-wrap bg-gray-200 px-2 py-2 rounded leading-none mt-12 xl:mt-0`;
 
 const TabControl = styled.div`
-  ${tw`cursor-pointer px-6 py-3 mt-2 sm:mt-0 sm:mr-2 last:mr-0 text-gray-600 font-medium rounded-sm transition duration-300 text-sm sm:text-base w-1/2 sm:w-auto text-center`}
+  ${tw`cursor-pointer px-10 self-center py-3 mt-2 sm:mt-0 sm:mr-2 last:mr-0 text-gray-600 font-medium rounded-sm transition duration-300 text-sm sm:text-base w-64 sm:w-auto text-center`}
   &:hover {
     ${tw`bg-gray-300 text-gray-700`}
   }
@@ -71,15 +73,10 @@ export default class Menu extends React.Component {
     const history = createBrowserHistory()
     const rid = /[^/]*$/.exec(history.location.pathname)[0];
     this.state = {
-      tabs: {
-          Starters: getRandomCards(),
-          Main: getRandomCards(),
-          Soup: getRandomCards(),
-          Desserts: getRandomCards(),
-        },
-        activeTab: "Starters",
-        name: "",
-        rid: rid
+      tabs: {},
+      activeTab: "",
+      name: "",
+      rid: rid
     }
     this.onSwitchSection = this.onSwitchSection.bind(this);
   }
@@ -90,7 +87,6 @@ export default class Menu extends React.Component {
   })
     .then(res => res.json()) // Convert the response data to a JSON.
     .then(name => {
-      console.log(name);
       this.setState({
         name: name[0]['restaurant_name']
       });
@@ -103,26 +99,23 @@ export default class Menu extends React.Component {
     })
     .then(res => res.json()) // Convert the response data to a JSON.
     .then(foodlist => {
-      var count = 0;
       var actual_food = this.state.tabs;
-      var sections = ['Starters', 'Main', 'Soup', 'Desserts'];
-      for (var s = 0; s<4; s++){
-        var tabName = sections[s];
-        for (var i = 0; i<this.state.tabs[tabName].length; i++){
-          actual_food[tabName][i]['title'] = foodlist[count]['name'];
-          actual_food[tabName][i]['price'] = "$" + foodlist[count]['price'];
-          actual_food[tabName][i]['content'] = '';          
-          if (count >= foodlist.length-1){
-            break;
-          }
-          count += 1;
+      
+      for (var i = 0; i<foodlist.length; i++){
+        var tabName = foodlist[i]['section_name']
+        if (!actual_food.hasOwnProperty(tabName)){
+          actual_food[tabName] = []
         }
+        actual_food[tabName].push({
+            title: foodlist[i]['name'],
+            price: ((foodlist[i]['price'] > 0) ? "$" + foodlist[i]['price'] : ""),
+            content: foodlist[i]['description'],
+            url: '',
+            deal: "0%",
+            section: tabName
+        });
       }
-      this.setState({
-        tabs: actual_food
-      });
-      console.log(actual_food);
-      // Set the state of the person list to the value returned by the HTTP response from the server.
+      this.getImage(actual_food);
     })
     .catch(err => console.log(err));
   }
@@ -134,6 +127,116 @@ export default class Menu extends React.Component {
           });
     }
   };
+
+  getDeal(actual_food){
+      for (const key in actual_food) {
+      var items = actual_food[key]
+      for (var j = 0; j < items.length;j++){
+          var item = items[j]
+          fetch("http://localhost:8082/get_deal/" + item['title'] + "/" + key, {
+            method: "GET", 
+          })
+          .then(res => res.json())
+          .then(deal_list =>{
+            const cat = deal_list[0]['category']
+            const name = deal_list[0]['name']
+            const p0 = parseFloat(deal_list[0]['price'])
+            console.log(name)
+            for (var i = 0; i < actual_food[cat].length; i++){
+              if (actual_food[cat][i]['title'].toLowerCase() === name.toLowerCase()){
+                const p1 = parseFloat(actual_food[cat][i]['price'].substring(1))
+                var deal_percent = Math.round( 100 * (p1 - p0) / p0 * 100)/100 ;
+                console.log(cat + ", " + name)
+                console.log("     " + p0 + ", " + p1 + " -> " + deal_percent)
+                actual_food[cat][i]['deal'] = deal_percent.toString() + "%"
+                this.setState({
+                  tabs: actual_food
+                }); 
+                break
+              }
+            }
+          })
+          .catch(err => console.log(err));
+
+      } }
+
+  }
+
+  getImage(actual_food){
+    fetch("http://localhost:8082/get_tf", {
+    method: "GET",
+    })
+    .then(res => res.json())
+    .then(tflist =>{
+        
+        let tfmap = new Map();
+        for (var i = 0; i < tflist.length; i++){
+          tfmap.set(tflist[i]['word'].toLowerCase(), tflist[i]['tf']);
+        }
+        fetch("http://localhost:8082/foodpics", {
+        method: "GET", // The type of HTTP request.
+        })
+        .then(res => res.json())
+        .then(pics =>{        
+        //for each word in actual food
+        var neverSeen = true
+        Object.keys(actual_food).forEach(function(key) {
+          var items = actual_food[key]
+          for (var j=0;j<items.length;j++){
+          var original_words = items[j]['title'].toLowerCase().split(" ")
+          var title_words = items[j]['section'].toLowerCase().split(" ");
+          var words = original_words.concat( title_words )
+          var singular = []
+          for (var w=0;w<words.length;w++){
+            if (words[w].endsWith("s")){
+              singular.push(words[w].substring(0, words[w].length-1));
+            }
+          }
+          words = words.concat( singular )
+          //console.log(words)
+
+          //for each word in picture food            
+          var best_food = "";
+          var best_url = "";
+          var best_val = -1;
+          var quick_end = original_words.length
+          for (var fi=0; fi < pics.length; fi ++){
+            var pic_words = pics[fi]['food'].toLowerCase().split(" ");
+            var pic_val = 0
+            var tot = 0;
+            var seen_word = new Map();
+            for (var i=0; i<words.length; i++){
+              for (var wi=0; wi < pic_words.length; wi++){
+                if (words[i] ===  pic_words[wi] && words[i].length > 0 && !seen_word.has(words[i])){
+                  if (i < quick_end)
+                    pic_val += 1//tfmap.get(pic_words[wi].toLowerCase());
+                  else
+                    pic_val += 0.1
+                  seen_word.set(words[i], true);
+                }else if (words[i].length > 0){
+                  tot += 0.0001//tfmap.get(pic_words[wi].toLowerCase());
+                }
+              }
+              
+            }
+            pic_val = Math.max(0, pic_val - tot);
+
+            if (pic_val > best_val){
+              best_val = pic_val;
+              best_url = pics[fi]['url'];
+              best_food = pics[fi]['food'];
+            }
+          }
+          //foodname to picture 
+          items[j]['url'] = (best_url.substring(0,1) === '"') ? best_url.substring(1) : best_url;
+          //console.log(items[j]['title'] + " -> " + best_food + ": " + best_val);
+          }
+        });
+        this.getDeal(actual_food);
+      });
+    })
+    .catch(err => console.log(err));
+  }
 
 
 render(){
@@ -147,11 +250,12 @@ render(){
  
   return (
     <AnimationRevealPage>
+    <BigHeader />
     <Container>
       <ContentWithPaddingXl>
         <HeaderRow>
           <Header> {this.state.name} <HighlightedText>menu.</HighlightedText> </Header> 
-
+        </HeaderRow>
           <TabsControl>
             {tabsKeys.map((tabName, index) => (
               <TabControl key={index} active={this.state.activeTab === tabName} onClick={()=> this.onSwitchSection(tabName) } >
@@ -160,7 +264,7 @@ render(){
               </TabControl>
             ))}
           </TabsControl>        
-        </HeaderRow>
+        
 
         
         {tabsKeys.map((tabKey, index) => (
@@ -184,30 +288,14 @@ render(){
           >
             {this.state.tabs[tabKey].map((card, index) => (
               <CardContainer key={index}>
-                <Card className="group" href={card.url} initial="rest" whileHover="hover" animate="rest">
-                  <CardImageContainer imageSrc={card.imageSrc}>
+                <Card className="group" initial="rest" whileHover="hover" animate="rest">
+                  <CardImageContainer imageSrc={card.url}>
                     <CardRatingContainer>
                       <CardRating>
-                        <StarIcon />
-                        {card.rating}
+                        <StarIcon/>
+                        {card.deal}
                       </CardRating>
-                      <CardReview>({card.reviews})</CardReview>
                     </CardRatingContainer>
-                    <CardHoverOverlay
-                      variants={{
-                        hover: {
-                          opacity: 1,
-                          height: "auto"
-                        },
-                        rest: {
-                          opacity: 0,
-                          height: 0
-                        }
-                      }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <CardButton>Buy Now</CardButton>
-                    </CardHoverOverlay>
                   </CardImageContainer>
                   <CardText>
                     <CardTitle>{card.title}</CardTitle>
@@ -228,91 +316,3 @@ render(){
   }
 };
 
-/* This function is only there for demo purposes. It populates placeholder cards */
-const getRandomCards = () => {
-  const cards = [
-    {
-      imageSrc:
-        "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-      title: "Chicken Chilled",
-      content: "Chicken Main Course",
-      price: "$5.99",
-      rating: "5.0",
-      reviews: "87",
-      url: "#"
-    },
-    {
-      imageSrc:
-        "https://images.unsplash.com/photo-1582254465498-6bc70419b607?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-      title: "Samsa Beef",
-      content: "Fried Mexican Beef",
-      price: "$3.99",
-      rating: "4.5",
-      reviews: "34",
-      url: "#"
-    },
-    {
-      imageSrc:
-        "https://images.unsplash.com/photo-1565310022184-f23a884f29da?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-      title: "Carnet Nachos",
-      content: "Chilli Crispy Nachos",
-      price: "$3.99",
-      rating: "3.9",
-      reviews: "26",
-      url: "#"
-    },
-    {
-      imageSrc:
-        "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-      title: "Guacamole Mex",
-      content: "Mexican Chilli",
-      price: "$3.99",
-      rating: "4.2",
-      reviews: "95",
-      url: "#"
-    },
-    {
-      imageSrc:
-        "https://images.unsplash.com/photo-1550461716-dbf266b2a8a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-      title: "Chillie Cake",
-      content: "Deepfried Chicken",
-      price: "$2.99",
-      rating: "5.0",
-      reviews: "61",
-      url: "#"
-    },
-    {
-      imageSrc:
-        "https://images.unsplash.com/photo-1476224203421-9ac39bcb3327??ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-      title: "Nelli",
-      content: "Hamburger & Fries",
-      price: "$7.99",
-      rating: "4.9",
-      reviews: "89",
-      url: "#"
-    },
-    {
-      imageSrc:
-        "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-      title: "Jalapeno Poppers",
-      content: "Crispy Soyabeans",
-      price: "$8.99",
-      rating: "4.6",
-      reviews: "12",
-      url: "#"
-    },
-    {
-      imageSrc:
-        "https://images.unsplash.com/photo-1473093226795-af9932fe5856?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80",
-      title: "Cajun Chicken",
-      content: "Roasted Chicken & Egg",
-      price: "$7.99",
-      rating: "4.2",
-      reviews: "19",
-      url: "#"
-    }
-  ];
-
-  // Shuffle array
-  return cards.sort(() => Math.random() - 0.5);
-};
