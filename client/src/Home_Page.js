@@ -79,7 +79,8 @@ const AdvancedSearchButtonShow = tw(PrimaryButton)`mt-16 mx-auto`;
 const LocCuisineButton = tw(PrimaryButton)`mt-16 mx-auto`;
 //add in the buttons that appear when the Advanced Search Button is clicked
 const AdvancedSearchButton = tw(PrimaryButton)`mt-16 mx-auto`;
-//const 
+//create restaurant name search button 
+const SearchRestNameButton = tw(PrimaryButton)`mt-16 mx-auto`;
 
 const Actions = styled.div`
   ${tw`relative max-w-md text-center mx-auto lg:mx-0`}
@@ -105,6 +106,7 @@ export default class ResultsPage extends React.Component {
        showMainSearch : true,
        // add in the selected borough variable
        selectedBorough: "Bronx",
+       showRestName : false,
        posts : [
           {
             imageSrc:
@@ -125,6 +127,7 @@ export default class ResultsPage extends React.Component {
     this.handleSelectBorough = this.handleSelectBorough.bind(this);
     this.handleSelectPrice = this.handleSelectPrice.bind(this);
     //this.DishSearchClick = this.DishSearchClick.bind(this);
+    this.onSearchRestNameButtonClick = this.onSearchRestNameButtonClick.bind(this);
   };
   onLoadMoreClick (){
     this.setState({
@@ -153,12 +156,20 @@ export default class ResultsPage extends React.Component {
     //console.log(input)
     localStorage.setItem('query_borough',input)
   };
-
+//function to save the price selected
   handleSelectPrice = (e) => {
     const input_price= e.value
     //console.log(input)
     localStorage.setItem('query_price',input_price)
   };
+
+  //function for rest name button 
+  onSearchRestNameButtonClick (){
+    this.setState({
+      showRestName: true,
+      showMainSearch: false
+    })
+  }
 
 
   componentDidMount() {
@@ -207,12 +218,17 @@ ZipPriceClick () {
    localStorage.setItem('query_price', null);
   }
 
+  RestNameClick() {
+    localStorage.setItem('query_rest_name',document.getElementById('rest_name_box').value);
+    console.log(localStorage.getItem('query_rest_name'));
+  }
   render(){
     //const showZipCodeButton =this.state.showZipCodeButton;
     //const showPriceDropdown =this.state.showPriceDropdown;
     const showLocDropdown = this.state.showLocDropdown;
     //const showCuisineDropdown = this.state.showCuisineDropdown;
     const showMainSearch = this.state.showMainSearch;
+    const showRestName = this.state.showRestName;
   return (
     <AnimationRevealPage>
       <Header />
@@ -231,7 +247,18 @@ ZipPriceClick () {
               </Link>
             </Actions>)}
           </HeadingRow>
-          
+        {/* Add in the Restaurant Name Search Button */}
+        <ButtonContainer>
+              <SearchRestNameButton onClick={this.onSearchRestNameButtonClick}>Want Info On A Specific Restaruant? Click Here!</SearchRestNameButton>
+        </ButtonContainer>
+        {showRestName &&(
+          <Actions>
+            <input type="text" id="rest_name_box" placeholder="Enter Restaurant Name!"/>
+            <Link to="/results">
+            <button onClick={this.RestNameClick}>Find Me This Restaurant!</button>
+            </Link>
+          </Actions>)}
+
         {/* Add in the Cuisine and Location Search Buttons */}
         <ButtonContainer>
               <LocCuisineButton onClick={this.onLocCuisineButtonClick}>Want To Try An Advanced Search? Click Here!</LocCuisineButton>
@@ -258,9 +285,9 @@ ZipPriceClick () {
           />)}
           { showLocDropdown &&(
           <Actions>
-              {/*<Link to="/results">*/}
-              <button onClick={this.ZipPriceClick} href="/results">Advanced Search</button>
-              {/*</Link>*/}
+              <Link to="/results">
+              <button onClick={this.ZipPriceClick}>Advanced Search</button>
+              </Link>
             </Actions>)}
           <Posts>
             {this.state.posts.slice(0, this.state.visible).map((post, index) => (
