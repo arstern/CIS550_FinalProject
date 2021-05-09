@@ -216,19 +216,15 @@ export default class ResultsPage extends React.Component {
     var posts_list = Array()
     posts_list.push(this.state.posts[0])
     for (var i =0; i < resList.length; i++ ){
-      posts_list.push({"title": resList[i]['restaurant_name'],
-                        "url": "/restaurant/" + resList[i]['restaurant_id'],
-                        "imageSrc": getPlaceholderPost()["imageSrc"]})
+      posts_list.push({title: resList[i]['restaurant_name'],
+                        url: "/restaurant/" + resList[i]['restaurant_id'],
+                        imageSrc: getPlaceholderPost()["imageSrc"]})
     }
     this.setState({
       reslist: resList,
       new_posts: posts_list,
       visible: 4
     });
-  }
-
-  featured(resList) {
-    //modify the first element of this.state.posts_list to have the restaurant information that is returned by complex query
   }
 
   render(){
