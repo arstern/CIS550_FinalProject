@@ -1,0 +1,33 @@
+CREATE TABLE `main`.`average_price_by_name_cuisine` (
+`cuisine` VARCHAR(100) NOT NULL,
+`name` VARCHAR(250) NOT NULL, 
+`price` FLOAT,
+PRIMARY KEY (`cuisine`, `name`));
+
+CREATE TABLE `main`.`cheapest_chain` (
+`restaurant_id` BIGINT NOT NULL,
+`restaurant_name` VARCHAR(250),
+PRIMARY KEY (`restaurant_id`));
+
+INSERT INTO average_price_by_name_cuisine
+WITH choose_food_cuisine AS(SELECT cuisine, name, price
+FROM FoodItem F 
+JOIN Cuisine C ON F.rest_id = C.restaurant_id 
+JOIN Restaurant R ON R.restaurant_id = F.rest_id
+WHERE price <> 0)
+SELECT cuisine, name, AVG(price) as average
+FROM choose_food_cuisine 
+GROUP by cuisine, name;
+
+INSERT INTO cheapest_chain
+WITH avg_prices_rest AS (
+	SELECT restaurant_id, restaurant_name, AVG(f1.price) as avg_price
+	FROM Restaurant r1
+	JOIN FoodItem f1 ON r1.restaurant_id = f1.rest_id
+    GROUP BY r1.restaurant_id, restaurant_name
+    HAVING avg_price != 0)
+SELECT restaurant_id, restaurant_name
+FROM avg_prices_rest av
+WHERE avg_price <= ALL(SELECT avg_price
+						FROM avg_prices_rest
+                        WHERE av.restaurant_name = restaurant_name);
