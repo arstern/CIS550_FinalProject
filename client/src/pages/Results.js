@@ -95,12 +95,41 @@ export default class ResultsPage extends React.Component {
   };
   
   componentDidMount() {
-    var query_food = localStorage.getItem('query_food');
-    var query_cuisine = localStorage.getItem('query_cuisine') || ""
-    console.log(query_cuisine + ", " + query_cuisine.length);
+    
+    var db_url = ""
+    var db_attributes = ""
+    var query_cuisine = localStorage.getItem('query_cuisine')
+    if (query_cuisine != null || query_cuisine.length != 0){
+      db_url += 'c'
+      db_attributes += query_cuisine + "/"
+    }
+
+    var query_lat = localStorage.getItem('query_lat')
+    var query_long = localStorage.getItem('query_lon')
+    if (query_lat != null && query_long != null){
+      db_url += 'l'
+      db_attributes += query_lat + "/" + query_long + "/"
+    }
+    
+
+    var query_borough = localStorage.getItem('query_borough')
+    if (query_borough != null){
+      db_url += 'b'
+      db_attributes += query_borough + "/"
+    }
+
+    var query_price = localStorage.getItem('query_price')
+    if (query_price != null){
+      db_url += 'p'
+      db_attributes += query_price + "/"
+    }
+
+    console.log(db_url);
+    db_url = 'lb'
+    db_attributes = '40.7831/-73.97/Manhattan/'
     var query = "http://localhost:8082/dummy_search/";
-    if (query_cuisine != null && query_cuisine.length != 0) {
-      var query = "http://localhost:8082/cuisine_search/" + query_cuisine
+    if (db_url.length > 0) {
+      var query = "http://localhost:8082/" + db_url +"_search/" + db_attributes
     }
     console.log(query)
 
@@ -109,6 +138,7 @@ export default class ResultsPage extends React.Component {
     })
       .then(res => res.json()) // Convert the response data to a JSON.
       .then(resList => {
+        console.log(resList);
         this.populate(resList);
       })
       .catch(err => console.log(err));

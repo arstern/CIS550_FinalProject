@@ -24,13 +24,24 @@ app.get('/get_tf', routes.getTF);
 app.get('/foodpics', routes.foodPics);
 app.get('/get_deal/:food/:category', routes.getDeal);
 
-app.get('/c_search/:cuisine', routes.cuisineSearch);
+app.get('/c_search/:cuisine', routes.cSearch);
 app.get('/l_search/:lat/:long', routes.lSearch);
 app.get('/b_search/:borough', routes.bSearch);
 app.get('/p_search/:price', routes.pSearch);
 
-app.get('/bp_search', routes.bpSearch);
-app.get('/lb_search', routes.bpSearch);
+app.get('/cl_search/:cuisine/:lat/:long', routes.clSearch);
+app.get('/cb_search/:cuisine/:borough', routes.cbSearch);
+app.get('/cp_search/:cuisine/:price', routes.cpSearch);
+app.get('/lb_search/:lat/:long/:borough', routes.lbSearch);
+app.get('/lp_search/:lat/:long/:price', routes.lpSearch);
+app.get('/bp_search/:borough/:price', routes.bpSearch);
+
+app.get('/clb_search/:cuisine/:lat/:long/:borough', routes.clbSearch);
+app.get('/clp_search/:cuisine/:lat/:long/:price', routes.clpSearch);
+app.get('/cbp_search/:cuisine/:borough/:price', routes.cbpSearch);
+app.get('/lbp_search/:lat/:long/:borough/:price', routes.lbpSearch);
+
+app.get('/clbp_search/:cuisine/:lat/:long/:borough/:price', routes.clbpSearch);
 
 /* ---- Part 2 (FindFriends) ---- */
 // TODO: (2) - Add route '/friends/:login' for the functionality of FindFriends page 
