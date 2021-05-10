@@ -4,16 +4,12 @@ import { motion } from "framer-motion";
 import tw from "twin.macro";
 import styled from "styled-components";
 import { css } from "styled-components/macro"; //eslint-disable-line
-import { Container, ContentWithPaddingXl } from "components/misc/Layouts.js";
-import { SectionHeading } from "components/misc/Headings.js";
-import { PrimaryButton as PrimaryButtonBase } from "components/misc/Buttons.js";
-// import { ReactComponent as StarIcon } from "images/checkbox-circle.svg";
+import { Container, ContentWithPaddingXl } from "components/Layouts.js";
+import { SectionHeading } from "components/Headings.js";
+import { PrimaryButton as PrimaryButtonBase } from "components/Buttons.js";
 import { ReactComponent as StarIcon } from "images/reliable-icon.svg";
-import { ReactComponent as SvgDecoratorBlob1 } from "images/svg-decorator-blob-5.svg";
-import { ReactComponent as SvgDecoratorBlob2 } from "images/svg-decorator-blob-7.svg";
 import AnimationRevealPage from "helpers/AnimationRevealPage.js";
-import Footer from "components/footers/FiveColumnWithInputForm.js";
-import BigHeader from "components/headers/light.js";
+import BigHeader from "components/Header.js";
 import { createBrowserHistory } from "history";
 
 const HeaderRow = tw.div`flex justify-between items-center flex-col xl:flex-row`;
@@ -59,12 +55,6 @@ const CardPrice = tw.p`mt-4 text-xl font-bold`;
 
 const HighlightedText = tw.span`bg-primary-500 text-gray-100 px-4 transform -skew-x-12 inline-block`;
 
-const DecoratorBlob1 = styled(SvgDecoratorBlob1)`
-  ${tw`pointer-events-none -z-20 absolute right-0 top-0 h-64 w-64 opacity-15 transform translate-x-2/3 -translate-y-12 text-pink-400`}
-`;
-const DecoratorBlob2 = styled(SvgDecoratorBlob2)`
-  ${tw`pointer-events-none -z-20 absolute left-0 bottom-0 h-80 w-80 opacity-15 transform -translate-x-2/3 text-primary-500`}
-`;
 
 export default class Menu extends React.Component {
   constructor(props){

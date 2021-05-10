@@ -1,4 +1,5 @@
 
 client/node_modules/**
-
+client/env.local
 client/node_modules/.cache/.eslintcache
+client/node_modules/.bin/acorn

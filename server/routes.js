@@ -1,7 +1,7 @@
 var config = require('./db-config.js');
 var mysql = require('mysql');
 
-config.connectionLimit = 10;
+config.connectionLimit = 1;
 var connection = mysql.createPool(config);
 
 /* -------------------------------------------------- */
@@ -24,12 +24,28 @@ function getName(req, res) {
   });
 };
 
+function getRFromName(req, res){
+  var inputName = req.params.name;
+  
+  var query = `
+    SELECT *
+    FROM Restaurant r 
+    WHERE r.restaurant_name LIKE "%${inputName}%";
+  `;
+  connection.query(query, function(err, rows, fields) {
+    if (err) console.log(err);
+    else {
+      res.json(rows);
+    }
+  });
+}
+
 function dummySearch(req, res) {  
   // TODO: (3) - Edit query below
   var query = `
     SELECT restaurant_name, restaurant_id AS rid
     FROM Restaurant r
-    LIMIT 10;
+    LIMIT 1;
   `;
   connection.query(query, function(err, rows, fields) {
     if (err) console.log(err);
@@ -120,7 +136,7 @@ function getRFromL(req, res) {
        * sin( radians(lat)))) AS distance
        
     FROM Restaurant r
-    HAVING distance < 5 
+    HAVING distance < 1 
     ORDER BY distance;
 
   `;
@@ -195,7 +211,7 @@ function getRFromLB(req, res) {
       
     FROM Restaurant r
     WHERE borough = "${inputBorough}"
-    HAVING distance < 5
+    HAVING distance < 1
     ORDER BY distance;
   `;
   connection.query(query, function(err, rows, fields) {
@@ -219,7 +235,7 @@ function getRFromLP(req, res) {
        
     FROM Restaurant r
     WHERE price_range = "${inputPrice}"
-    HAVING distance < 5
+    HAVING distance < 1
     ORDER BY distance;
   `;
   connection.query(query, function(err, rows, fields) {
@@ -266,7 +282,7 @@ function getRFromCB(req, res) {
   });
 };
 
-function getRFrom(req, res) {
+function getRFromCL(req, res) {
   var inputLat = req.params.lat;
   var inputLong = req.params.long;
   var inputCuisine = req.params.cuisine;
@@ -279,7 +295,7 @@ function getRFrom(req, res) {
        
     FROM Cuisine c JOIN Restaurant r ON r.restaurant_id = c.restaurant_id
     WHERE c.cuisine = "${inputCuisine}"
-    HAVING distance < 5
+    HAVING distance < 1
     ORDER BY distance;
   `;
   connection.query(query, function(err, rows, fields) {
@@ -304,7 +320,7 @@ function getRFromCLB(req, res) {
        
     FROM Cuisine c JOIN Restaurant r ON r.restaurant_id = c.restaurant_id
     WHERE c.cuisine = "${inputCuisine}" AND r.borough = "${inputBorough}"
-    HAVING distance < 5
+    HAVING distance < 1
     ORDER BY distance;
   `;
   connection.query(query, function(err, rows, fields) {
@@ -329,7 +345,7 @@ function getRFromCLP(req, res) {
        
     FROM Cuisine c JOIN Restaurant r ON r.restaurant_id = c.restaurant_id
     WHERE c.cuisine = "${inputCuisine}" AND r.price_range = "${inputPrice}"
-    HAVING distance < 5
+    HAVING distance < 1
     ORDER BY distance;
   `;
   connection.query(query, function(err, rows, fields) {
@@ -366,14 +382,14 @@ function getRFromLBP(req, res) {
   var inputBorough = req.params.borough;
 
   var query = `
-    SELECT r.*
+    SELECT r.*,
     ( 3959 * acos( cos( radians(${inputLat}) ) * cos( radians( lat ) ) 
        * cos( radians(lon) - radians(${inputLong})) + sin(radians(${inputLat})) 
        * sin( radians(lat)))) AS distance
        
     FROM Restaurant r
     WHERE price_range = "${inputPrice}" AND borough = "${inputBorough}"
-    HAVING distance < 5
+    HAVING distance < 1
     ORDER BY distance;
   `;
   connection.query(query, function(err, rows, fields) {
@@ -399,7 +415,7 @@ function getRFromCLBP(req, res) {
        
     FROM Cuisine c JOIN Restaurant r ON r.restaurant_id = c.restaurant_id
     WHERE c.cuisine = "${inputCuisine}" AND r.price_range = "${inputPrice}" AND r.borough = "${inputBorough}"
-    HAVING distance < 5
+    HAVING distance < 1
     ORDER BY distance;
   `;
   connection.query(query, function(err, rows, fields) {
@@ -510,6 +526,7 @@ module.exports = {
 
   dummySearch : dummySearch,
   getName : getName,
+  nameSearch: getRFromName,
   getFoodItems : getFoodItems,
   getTF : getTF,
   foodPics : getFoodPics,

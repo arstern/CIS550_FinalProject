@@ -16,6 +16,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.get('/dummy_search', routes.dummySearch);
 app.get('/getName/:rid', routes.getName);
 app.get('/get_food_items/:rid', routes.getFoodItems);
+app.get('/name_search/:name', routes.nameSearch);
 
 app.get('/get_tf', routes.getTF);
 app.get('/foodpics', routes.foodPics);

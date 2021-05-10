@@ -4,9 +4,9 @@ import tw from "twin.macro";
 import styled from "styled-components";
 import { css } from "styled-components/macro"; //eslint-disable-line
 
-import useAnimatedNavToggler from "../../helpers/useAnimatedNavToggler.js";
+import useAnimatedNavToggler from "../helpers/useAnimatedNavToggler.js";
 
-import logo from "../../images/logo.png";
+import logo from "../images/logo.png";
 import { ReactComponent as MenuIcon } from "feather-icons/dist/icons/menu.svg";
 import { ReactComponent as CloseIcon } from "feather-icons/dist/icons/x.svg";
 
@@ -83,7 +83,7 @@ export default ({ roundedHeaderButton = false, logoLink, links, className, colla
   const defaultLogoLink = (
     <LogoLink href="/">
       <img src={logo} alt="logo" />
-      550 PROJ
+      Food Finder
     </LogoLink>
   );
 

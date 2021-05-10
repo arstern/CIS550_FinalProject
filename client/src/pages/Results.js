@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import AnimationRevealPage from "helpers/AnimationRevealPage.js";
-import { Container, ContentWithPaddingXl } from "components/misc/Layouts";
+import { Container, ContentWithPaddingXl } from "components/Layouts";
 import tw from "twin.macro";
 import styled from "styled-components";
 import { css } from "styled-components/macro";
-import Header from "components/headers/light.js";
-import Footer from "components/footers/FiveColumnWithInputForm.js";
-import { SectionHeading } from "components/misc/Headings";
-import { PrimaryButton } from "components/misc/Buttons";
+import Header from "components/Header.js";
+import { SectionHeading } from "components/Headings";
+import { PrimaryButton } from "components/Buttons";
 import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import { NavLink } from 'react-router-dom'
 
@@ -63,10 +62,6 @@ const mapContainerStyle = {
   width: "89vw",
   height: "50vh",
 };
-const center={
-  lat: 40.712776,
-  lng: -74.005974,
-};
 
 export default class ResultsPage extends React.Component {
   constructor(props){
@@ -74,35 +69,21 @@ export default class ResultsPage extends React.Component {
     this.state = {
        headingText : "Here Are Your Results!",
        visible: 4,
+       center: {
+          lat: 40.712776,
+          lng: -74.005974
+        },
        infowindow: null,
        new_posts: [],
        reslist: [{"restaurant_id": 0, "lat": null, "lon": null}],
+       feature : localStorage.getItem('complex_query_toggle') == 1,
        posts : [
-          {
-            imageSrc:
-              "https://www.bhc.edu/wp-content/uploads/2017/09/hello-585289042.jpg",
-            category: "Featured Restaurant",
-            date: "April 21, 2020",
-            title: "Restaurant Name",
-            description:
-              "Change dynamically based on the complex query used to fill in this restaurant",
-            featured: true
-          },
-          getPlaceholderPost(),
-          getPlaceholderPost(),
-          getPlaceholderPost(),
-          getPlaceholderPost(),
-          getPlaceholderPost(),
-          getPlaceholderPost(),
-          getPlaceholderPost(),
-          getPlaceholderPost(),
           getPlaceholderPost()
-      ]
+      ]      
     };
     this.mapRef = React.createRef();
     this.onMapLoad = this.onMapLoad.bind(this);
     this.onLoadMoreClick = this.onLoadMoreClick.bind(this);
-    this.DBClick = this.DBClick.bind(this);
   }
 
   onMapLoad(map) {
@@ -117,8 +98,8 @@ export default class ResultsPage extends React.Component {
         <GoogleMap
           id='map'
           mapContainerStyle={mapContainerStyle}
-          center={center}
-          zoom={10}
+          center={this.state.center}
+          zoom={14}
           onLoad={this.onMapLoad}
         >
 
@@ -167,6 +148,7 @@ export default class ResultsPage extends React.Component {
     this.setState({new_posts: []})
     var db_url = ""
     var db_attributes = ""
+    var headingText = "Restaurants"
     //check the complex query toggle
     var complex_query_toggle = localStorage.getItem('complex_query_toggle')
     if (complex_query_toggle ==1) {
@@ -177,13 +159,15 @@ export default class ResultsPage extends React.Component {
       db_attributes += query_borough + "/"
       var query_price = localStorage.getItem('query_price')
       db_attributes += query_price + "/"
-
+      headingText = "COMPLEX QUERY Restaurants"
 
     }
+
     var query_cuisine = localStorage.getItem('query_cuisine')
     if (query_cuisine != 0 && complex_query_toggle !=1){
       db_url += 'c'
       db_attributes += query_cuisine + "/"
+      headingText = query_cuisine.charAt(0).toUpperCase() + query_cuisine.toLowerCase().slice(1) + " " + headingText 
     }
 
     var query_lat = localStorage.getItem('query_lat')
@@ -191,6 +175,7 @@ export default class ResultsPage extends React.Component {
     if (query_lat != 0 && query_long != 0){
       db_url += 'l'
       db_attributes += query_lat + "/" + query_long + "/"
+      headingText = "Nearby " + headingText
     }
     
 
@@ -198,28 +183,35 @@ export default class ResultsPage extends React.Component {
     if (query_borough != null && query_borough != 0 && complex_query_toggle !=1){
       db_url += 'b'
       db_attributes += query_borough + "/"
+      headingText += " in " + query_borough
     }
 
     var query_price = localStorage.getItem('query_price')
     if (query_price != null && query_price != 0 && complex_query_toggle !=1){
       db_url += 'p'
       db_attributes += query_price + "/"
+      headingText = query_price + " " + headingText
     }
-    
 
-    console.log(db_url);
-    //db_url = 'lb'
-    //db_attributes = '40.7831/-73.97/Manhattan/'
+
     var query = "http://localhost:8082/dummy_search/";
     if (db_url.length > 0 && complex_query_toggle !=1) {
-      var query = "http://localhost:8082/" + db_url +"_search/" + db_attributes
+      query = "http://localhost:8082/" + db_url +"_search/" + db_attributes
     }
     //add condition for complex query
-    else {
-      var query = "http://localhost:8082/" + db_url + db_attributes
+    else if (complex_query_toggle == 1) {
+      query = "http://localhost:8082/" + db_url + db_attributes
     }
-    console.log(query)
 
+    var cheap_chain = localStorage.getItem('query_cheap_chain_toggle')
+    var r_name = localStorage.getItem('query_rest_name');
+    if (cheap_chain == 1){
+        headingText = r_name.charAt(0).toUpperCase() + r_name.toLowerCase().slice(1) + " Restaurants" 
+        query = "http://localhost:8082/name_search/" + r_name 
+    }
+    
+    this.state.headingText = headingText
+    console.log(query)
     fetch(query, {
       method: "GET", // The type of HTTP request.
     })
@@ -230,42 +222,35 @@ export default class ResultsPage extends React.Component {
       .catch(err => console.log(err));
   }
 
-  DBClick(){
-   this.setState({new_posts: []})
-   console.log( document.getElementById('textbox_id').value ) 
-   localStorage.setItem('query_cuisine', document.getElementById('textbox_id').value);
-   console.log("Stored: " + localStorage.getItem('query_cuisine'));
-   fetch("http://localhost:8082/cuisine_search/" + document.getElementById('textbox_id').value  , {
-      method: "GET", // The type of HTTP request.
-    })
-      .then(res => res.json()) // Convert the response data to a JSON.
-      .then(resList => {
-        this.new_populate(resList);
-      })
-      .catch(err => console.log(err));
-    };
-
-  populate(resList){
-      var actual_posts = this.state.posts
-      for (var i =0; i < Math.min(resList.length, this.state.posts.length-1); i++ ){
-        actual_posts[i+1]['title'] = resList[i]['restaurant_name']
-        actual_posts[i+1]['url'] = "/restaurant/" + resList[i]['restaurant_id']
-        //console.log(actual_posts[i]);
-      }
-      this.setState({
-        reslist: resList,
-        posts: actual_posts,
-        visible: 4
-      });
-  }
 
   new_populate(resList) {
     var posts_list = Array()
-    posts_list.push(this.state.posts[0])
+
     for (var i =0; i < resList.length; i++ ){
-      posts_list.push({title: resList[i]['restaurant_name'],
-                        url: "/restaurant/" + resList[i]['restaurant_id'],
-                        imageSrc: getPlaceholderPost()["imageSrc"]})
+      if (i == 0){
+            posts_list.push({
+                imageSrc: "https://www.bhc.edu/wp-content/uploads/2017/09/hello-585289042.jpg",
+                category: "Featured Restaurant",
+                date: "April 21, 2020",
+                title: resList[i]['restaurant_name'],
+                url: "/restaurant/" + resList[i]['restaurant_id'],
+                description: resList[i]['formatted'] + "\n\n" + resList[i]['restaurant_website'],
+                featured: true
+            });
+            this.setState({
+                center: {
+                  'lat' : parseFloat(resList[i]['lat']),
+                  'lng': parseFloat(resList[i]['lon'])
+                }
+            });
+            console.log(this.state.center.lat + ", " + this.state.center.lng + " )")
+      }
+      else
+            posts_list.push({title: resList[i]['restaurant_name'],
+                          url: "/restaurant/" + resList[i]['restaurant_id'],
+                          imageSrc: getPlaceholderPost()["imageSrc"],
+                          category: resList[i]['formatted']
+                        })
     }
     this.setState({
       reslist: resList,
@@ -274,7 +259,6 @@ export default class ResultsPage extends React.Component {
     });
     console.log(this.state.reslist)
   }
-
   render(){
   return (
     <AnimationRevealPage>

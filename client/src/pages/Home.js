@@ -1,22 +1,16 @@
 import React, { useState } from "react";
 import AnimationRevealPage from "helpers/AnimationRevealPage.js";
-import { Container, ContentWithPaddingXl } from "components/misc/Layouts";
+import { Container, ContentWithPaddingXl } from "components/Layouts";
 import tw from "twin.macro";
 import styled from "styled-components";
 import { css } from "styled-components/macro";
-import Header from "components/headers/light.js";
-import Footer from "components/footers/FiveColumnWithInputForm.js";
-import { SectionHeading } from "components/misc/Headings";
-import { PrimaryButton } from "components/misc/Buttons";
+import Header from "components/Header.js";
+import { SectionHeading } from "components/Headings";
+import { PrimaryButton } from "components/Buttons";
 import { Link } from "react-router-dom";
-//import 'react-dropdown/style.css';
 import Select from 'react-select';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 
-
-//import { createPopper } from '@popperjs/core';
-//import 'bootstrap/dist/css/bootstrap.min.css'
-import TwoColWithSteps from "components/features/TwoColWithSteps";
 
 const Boroughs = [
   { label: 'Queens', value: 'Queens' },
@@ -84,16 +78,6 @@ const AdvancedSearchButton = tw(PrimaryButton)`mt-16 mx-auto`;
 const SearchRestNameButton = tw(PrimaryButton)`mt-16 mx-auto`;
 //creat button for complex query 1
 const ComplexQueryButton = tw(PrimaryButton)`mt-16 mx-auto`;
-
-//set the default values of everything
-localStorage.setItem('query_cuisine', 0);
-localStorage.setItem('query_lat', 0);
-localStorage.setItem('query_lon', 0);
-localStorage.setItem('query_borough', 0);
-localStorage.setItem('query_price', 0);
-//set the two toggles
-localStorage.setItem('complex_query_toggle',0)
-localStorage.setItem('query_cheap_chain_toggle', 0)
 
 const Actions = styled.div`
   ${tw`relative max-w-md text-center mx-auto lg:mx-0`}
@@ -199,28 +183,7 @@ export default class ResultsPage extends React.Component {
       showMainSearch: false
     })
 
-  }
-
-
-  componentDidMount() {
-    var query_food = localStorage.getItem('query_food');
-    var query_cuisine = localStorage.getItem('query_cuisine') || ""
-    console.log(query_cuisine + ", " + query_cuisine.length);
-    var query = "http://localhost:8082/dummy_search/";
-    if (query_cuisine != null && query_cuisine.length != 0) {
-      var query = "http://localhost:8082/cuisine_search/" + query_cuisine
-    }
-    console.log(query)
-
-    fetch(query, {
-      method: "GET", // The type of HTTP request.
-    })
-      .then(res => res.json()) // Convert the response data to a JSON.
-      .then(resList => {
-        this.populate(resList);
-      })
-      .catch(err => console.log(err));
-  }
+  } 
 
 ZipPriceClick () {
   if (document.getElementById('textbox_id_adv_search').value.length ==0) {
@@ -259,6 +222,7 @@ ZipPriceClick () {
   
   //console.log(localStorage.getItem('query_borough'));
   console.log(localStorage.getItem('query_price'));
+  localStorage.setItem('query_cheap_chain_toggle', 0)
   //console.log(this.state.showLocDropdown);
   //localStorage.setItem('query_price', document.getElementById("Price_Range_Selection_Button").value);
 }
@@ -270,6 +234,7 @@ ZipPriceClick () {
    localStorage.setItem('query_lon', 0);
    localStorage.setItem('query_borough', 0);
    localStorage.setItem('query_price', 0);
+   localStorage.setItem('query_cheap_chain_toggle', 0)
   }
   // this the function that executes when a restaruant is clicked
   RestNameClick() {
@@ -293,6 +258,7 @@ ZipPriceClick () {
                                             lng: event.latLng.lng()}}
                           );
     // save to local storage as well
+    console.log("lat reset")
     localStorage.setItem('query_lat', event.latLng.lat());
     console.log(localStorage.getItem('query_lat'))
     localStorage.setItem('query_lon',event.latLng.lng());
@@ -302,6 +268,7 @@ ZipPriceClick () {
   //function to capture complex query inputs
   captureComplexQuery () {
     //set the complex query flag to 1 for the toggle
+    console.log("complex get?")
     localStorage.setItem('complex_query_toggle',1)
     //save to local storage the cuisine name
     localStorage.setItem('query_cuisine',document.getElementById("textbox_id_complex_query").value);
@@ -309,6 +276,7 @@ ZipPriceClick () {
     console.log(localStorage.getItem('query_cuisine'))
     console.log(localStorage.getItem('query_borough'))
     console.log(localStorage.getItem('query_price'))
+    localStorage.setItem('query_cheap_chain_toggle', 0)
     
 
   }
