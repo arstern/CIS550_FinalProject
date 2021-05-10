@@ -11,6 +11,8 @@ import { ReactComponent as StarIcon } from "images/reliable-icon.svg";
 import AnimationRevealPage from "helpers/AnimationRevealPage.js";
 import BigHeader from "components/Header.js";
 import { createBrowserHistory } from "history";
+const controller = new AbortController();
+const { signal } = controller;
 
 const HeaderRow = tw.div`flex justify-between items-center flex-col xl:flex-row`;
  const Header = tw(SectionHeading)`self-center`;
@@ -44,14 +46,14 @@ const CardHoverOverlay = styled(motion.div)`
   background-color: rgba(255, 255, 255, 0.5);
   ${tw`absolute inset-0 flex justify-center items-center`}
 `;
-const CardButton = tw(PrimaryButtonBase)`text-sm`;
+const CardButton = tw.button`text-sm bg-transparent`;
 
 const CardReview = tw.div`font-medium text-xs text-gray-600`;
 
 const CardText = tw.div`p-4 text-gray-900`;
 const CardTitle = tw.h5`text-lg font-semibold group-hover:text-primary-500`;
-const CardContent = tw.p`mt-1 text-sm font-medium text-gray-600`;
-const CardPrice = tw.p`mt-4 text-xl font-bold`;
+const CardContent = tw.p`mt-1 text-sm font-medium text-gray-600 group-hover:text-primary-500`;
+const CardPrice = tw.p`mt-4 text-xl font-bold group-hover:text-primary-500`;
 
 const HighlightedText = tw.span`bg-primary-500 text-gray-100 px-4 transform -skew-x-12 inline-block`;
 
@@ -69,6 +71,11 @@ export default class Menu extends React.Component {
       rid: rid
     }
     this.onSwitchSection = this.onSwitchSection.bind(this);
+    this.getDeal2 = this.getDeal2.bind(this);
+  }
+  alertUser(){
+    console.log("SDfds")
+    controller.abort();
   }
   componentDidMount() {
 
@@ -101,7 +108,7 @@ export default class Menu extends React.Component {
             price: ((foodlist[i]['price'] > 0) ? "$" + foodlist[i]['price'] : ""),
             content: foodlist[i]['description'],
             url: '',
-            deal: "0%",
+            deal: "",
             section: tabName
         });
       }
@@ -118,26 +125,61 @@ export default class Menu extends React.Component {
     }
   };
 
+  getDeal2(card){
+    var title = card.target.innerText
+    var card = 'blank'
+    console.log(title)
+    fetch("http://localhost:8082/get_deal/" + title + "/" + card, {
+            method: "GET", 
+            signal
+    })
+    .then(res => res.json())
+    .then(deal_list =>{
+        console.log(deal_list)
+        const cat = this.state.activeTab
+        const name = deal_list[0]['name']
+        const p0 = parseFloat(deal_list[0]['price'])
+        
+        
+        var actual_food = this.state.tabs
+        for (var i = 0; i < actual_food[cat].length; i++){
+          if (actual_food[cat][i]['title'].toLowerCase() === name.toLowerCase()){
+            const p1 = parseFloat(actual_food[cat][i]['price'].substring(1))
+            var deal_percent = Math.round( 100 * (p1 - p0) / p0 * 100)/100 ;
+            //console.log(cat + ", " + name)
+            //console.log("     " + p0 + ", " + p1 + " -> " + deal_percent)
+            actual_food[cat][i]['deal'] = deal_percent.toString() + "%"
+            this.setState({
+              tabs : actual_food
+            }); 
+          }
+        }
+      })
+      .catch(err => console.log(err));
+  }
+
   getDeal(actual_food){
       for (const key in actual_food) {
       var items = actual_food[key]
+      console.log(items.length)
       for (var j = 0; j < items.length;j++){
           var item = items[j]
           fetch("http://localhost:8082/get_deal/" + item['title'] + "/" + key, {
             method: "GET", 
+            signal
           })
           .then(res => res.json())
           .then(deal_list =>{
             const cat = deal_list[0]['category']
             const name = deal_list[0]['name']
             const p0 = parseFloat(deal_list[0]['price'])
-            console.log(name)
+            //console.log(name)
             for (var i = 0; i < actual_food[cat].length; i++){
               if (actual_food[cat][i]['title'].toLowerCase() === name.toLowerCase()){
                 const p1 = parseFloat(actual_food[cat][i]['price'].substring(1))
                 var deal_percent = Math.round( 100 * (p1 - p0) / p0 * 100)/100 ;
-                console.log(cat + ", " + name)
-                console.log("     " + p0 + ", " + p1 + " -> " + deal_percent)
+                //console.log(cat + ", " + name)
+                //console.log("     " + p0 + ", " + p1 + " -> " + deal_percent)
                 actual_food[cat][i]['deal'] = deal_percent.toString() + "%"
                 this.setState({
                   tabs: actual_food
@@ -222,7 +264,9 @@ export default class Menu extends React.Component {
           //console.log(items[j]['title'] + " -> " + best_food + ": " + best_val);
           }
         });
-        this.getDeal(actual_food);
+        this.setState({
+          tabs: actual_food
+        }); 
       });
     })
     .catch(err => console.log(err));
@@ -279,19 +323,23 @@ render(){
             {this.state.tabs[tabKey].map((card, index) => (
               <CardContainer key={index}>
                 <Card className="group" initial="rest" whileHover="hover" animate="rest">
-                  <CardImageContainer imageSrc={card.url}>
-                    <CardRatingContainer>
-                      <CardRating>
-                        <StarIcon/>
-                        {card.deal}
-                      </CardRating>
-                    </CardRatingContainer>
-                  </CardImageContainer>
-                  <CardText>
-                    <CardTitle>{card.title}</CardTitle>
-                    <CardContent>{card.content}</CardContent>
-                    <CardPrice>{card.price}</CardPrice>
-                  </CardText>
+                  
+                      <CardImageContainer imageSrc={card.url}>
+                        <CardRatingContainer>
+                          <CardRating>
+                            <StarIcon/>
+                            {card.deal}
+                          </CardRating>
+                        </CardRatingContainer>
+                      </CardImageContainer>
+                      <CardText>
+                      <CardButton onClick={this.getDeal2.bind(card.title)}>
+                        <CardTitle>{card.title}</CardTitle>
+                        <CardContent>{card.content}</CardContent>
+                        <CardPrice>{card.price}</CardPrice>
+                      </CardButton>
+                      </CardText>
+                  
                 </Card>
               </CardContainer>
             ))}
