@@ -76,7 +76,7 @@ export default class ResultsPage extends React.Component {
        infowindow: null,
        new_posts: [],
        reslist: [{"restaurant_id": 0, "lat": null, "lon": null}],
-       feature : localStorage.getItem('complex_query_toggle') == 1,
+       feature : true,
        posts : [
           getPlaceholderPost()
       ]      
@@ -217,6 +217,7 @@ export default class ResultsPage extends React.Component {
     })
       .then(res => res.json()) // Convert the response data to a JSON.
       .then(resList => {
+        console.log(resList)
         this.new_populate(resList);
       })
       .catch(err => console.log(err));
