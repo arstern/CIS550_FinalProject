@@ -31,6 +31,8 @@ const Prices =[
 
 ];
 
+
+
 const HeadingRow = tw.div`flex`;
 const Heading = tw(SectionHeading)`text-gray-900`;
 const Posts = tw.div`mt-6 sm:-mr-8 flex flex-wrap`;
@@ -115,6 +117,7 @@ export default class ResultsPage extends React.Component {
        selectedBorough: 0,
        showRestName : false,
        location_choice: null,
+       random: "",
        posts : [
           {
             imageSrc:
@@ -147,6 +150,31 @@ export default class ResultsPage extends React.Component {
           visible: this.state.visible + 3,
         });
   };
+
+  componentDidMount(){
+      localStorage.setItem('query_cuisine', 0);
+      localStorage.setItem('query_price', 0);
+      localStorage.setItem('query_borough', 0);
+      localStorage.setItem('complex_query_toggle', 0);
+      localStorage.setItem('query_cheap_chain_toggle', 0);
+      localStorage.setItem('query_rest_name', 0);
+      localStorage.setItem('query_rest_name_toggle', 0);
+
+
+      fetch("http://localhost:8082/random/", {
+      method: "GET", // The type of HTTP request.
+      })
+      .then(res => res.json()) // Convert the response data to a JSON.
+      .then(resList => {
+
+        this.setState({
+          random: "/restaurant/" + resList[0]['restaurant_id']
+        });
+        console.log(this.state.random)
+        console.log("hello me")
+      })
+      .catch(err => console.log(err));
+  }
 //this is the function to show the advanced search dropdown / button 
   onAdvancedSearchButtonShowClick () {
       this.setState({
@@ -194,6 +222,7 @@ export default class ResultsPage extends React.Component {
   } 
 
 ZipPriceClick () {
+
   if (document.getElementById('textbox_id_adv_search').value.length ==0) {
     localStorage.setItem('query_cuisine', 0)
   } else {
@@ -231,6 +260,7 @@ ZipPriceClick () {
   //console.log(localStorage.getItem('query_borough'));
   console.log(localStorage.getItem('query_price'));
   localStorage.setItem('query_cheap_chain_toggle', 0)
+  localStorage.setItem('complex_query_toggle',0)
   //console.log(this.state.showLocDropdown);
   //localStorage.setItem('query_price', document.getElementById("Price_Range_Selection_Button").value);
 }
@@ -243,20 +273,20 @@ ZipPriceClick () {
    localStorage.setItem('query_borough', 0);
    localStorage.setItem('query_price', 0);
    localStorage.setItem('query_cheap_chain_toggle', 0)
+   localStorage.setItem('complex_query_toggle',0)
   }
   // this the function that executes when a restaruant is clicked
   RestNameClick() {
+
     localStorage.setItem('query_rest_name',document.getElementById('rest_name_box').value);
     console.log(localStorage.getItem('query_rest_name'));
     //set the query for rest name to 1
     localStorage.setItem('query_cheap_chain_toggle', 1)
+    localStorage.setItem('complex_query_toggle',0)
     console.log('query_rest_name_toggle')
     //set all the other toggles to zero
     localStorage.setItem('query_cuisine',0);
-    localStorage.setItem('query_lat', 0);
-    localStorage.setItem('query_lon', 0);
     localStorage.setItem('query_borough', 0);
-    localStorage.setItem('query_price', 0);
   }
 
   //function to store lat and long from the map 
@@ -275,6 +305,7 @@ ZipPriceClick () {
   }
   //function to capture complex query inputs
   captureComplexQuery () {
+
     //set the complex query flag to 1 for the toggle
     console.log("complex get?")
     localStorage.setItem('complex_query_toggle',1)
@@ -430,7 +461,7 @@ ZipPriceClick () {
           <Posts>
             {this.state.posts.slice(0, this.state.visible).map((post, index) => (
               <PostContainer key={index} featured={post.featured}>
-                <Post className="group" as="a" href="https://www.youtube.com/watch?v=EUrUfJW1JGk&ab_channel=LuisEduardoAndradeOjeda">
+                <Post className="group" as="a" href={this.state.random}>
                   <Image imageSrc={post.imageSrc} />
                   <Info>
                     <Category>{post.category}</Category>

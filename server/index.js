@@ -19,6 +19,8 @@ app.get('/get_food_items/:rid', routes.getFoodItems);
 app.get('/name_search/:name', routes.nameSearch);
 app.get('/cheapest_chain/:name', routes.cheapest_chain);
 
+app.get('/random', routes.getRand);
+
 app.get('/get_tf', routes.getTF);
 app.get('/foodpics', routes.foodPics);
 app.get('/get_deal/:food/:category', routes.getDeal);

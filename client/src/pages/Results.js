@@ -152,7 +152,7 @@ export default class ResultsPage extends React.Component {
     var headingText = "Restaurants"
     //check the complex query toggle
     var complex_query_toggle = localStorage.getItem('complex_query_toggle')
-    if (complex_query_toggle ==1) {
+    if (complex_query_toggle == 1) {
       db_url += 'complex_query' + "/"
       var query_cuisine = localStorage.getItem('query_cuisine')
       db_attributes += query_cuisine + "/"
@@ -160,7 +160,7 @@ export default class ResultsPage extends React.Component {
       db_attributes += query_borough + "/"
       var query_price = localStorage.getItem('query_price')
       db_attributes += query_price + "/"
-      headingText = "COMPLEX QUERY Restaurants"
+      headingText = "Your Restaurant!"
 
     }
 
@@ -173,7 +173,7 @@ export default class ResultsPage extends React.Component {
 
     var query_lat = localStorage.getItem('query_lat')
     var query_long = localStorage.getItem('query_lon')
-    if (query_lat != 0 && query_long != 0){
+    if (query_lat != 0 && query_long != 0 && complex_query_toggle != 1){
       db_url += 'l'
       db_attributes += query_lat + "/" + query_long + "/"
       headingText = "Nearby " + headingText

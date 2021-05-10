@@ -7,7 +7,19 @@ var connection = mysql.createPool(config);
 /* -------------------------------------------------- */
 /* ------------------- Route Handlers --------------- */
 /* -------------------------------------------------- */
-
+function getRand(req, res){
+  var query = `
+  SELECT * FROM Restaurant r
+  ORDER BY RAND()
+  LIMIT 1
+  `;
+  connection.query(query, function(err, rows, fields) {
+    if (err) console.log(err);
+    else {
+      res.json(rows);
+    }
+  });
+}
 function getName(req, res) {
   var inputId = req.params.rid;
   
@@ -435,68 +447,33 @@ function complex_query (req,res){
   var inputPrice = req.params.price;
   var inputBorough = req.params.borough;
 
-  var query = `SELECT COUNT(Restaurant.restaurant_id) AS Number_Restaurants, borough
-
-  FROM Restaurant
-  
-  JOIN Cuisine ON Restaurant.restaurant_id = Cuisine.restaurant_id
-  
-  WHERE Cuisine.cuisine LIKE '${inputCuisine}' AND borough LIKE "${inputBorough}"
-  
-  GROUP BY borough
-  
-  ORDER BY Number_Restaurants DESC;
-  
+  var query = ` 
   WITH rests AS (
-  
-  SELECT restaurant_name, restaurant_website, restaurant_id 
-  
+  SELECT *
   FROM Restaurant
-  
-  WHERE price_range <= ${inputPrice} AND borough LIKE ${inputBorough} AND LENGTH(restaurant_website) >0
-  
+  WHERE price_range<= '${inputPrice}' AND borough LIKE '%${inputBorough}%' AND LENGTH(restaurant_website) >0
+
   ),
-  
   cuisines AS(
-  
   SELECT * FROM Cuisine
-  
-  WHERE Cuisine LIKE '${inputCuisine}'
-  
+  WHERE Cuisine LIKE '%${inputCuisine}%'
   ),
-  
   joined AS (
-  
-  SELECT rests.restaurant_name,rests.restaurant_website,rests.restaurant_id, cuisines.cuisine
-  
+  SELECT rests.*, cuisines.cuisine
   FROM rests 
-  
   JOIN cuisines ON rests.restaurant_id = cuisines.restaurant_id
-  
   ),
-  
   rest_ids AS (
-  
   SELECT restaurant_id FROM joined),
-  
   num_dishes AS (
-  
   SELECT COUNT(name) AS num_dishes, FoodItem.rest_id 
-  
   FROM FoodItem 
-  
   JOIN rest_ids ON FoodItem.rest_id = rest_ids.restaurant_id
-  
   GROUP BY FoodItem.rest_id 
-  
   ) 
-  
-  SELECT num_dishes, restaurant_name, restaurant_website,cuisine FROM num_dishes 
-  
+  SELECT joined.*, num_dishes FROM num_dishes
   JOIN joined ON num_dishes.rest_id = joined.restaurant_id
-  
-  ORDER BY num_dishes DESC LIMIT 1;`;
-  
+  ORDER BY num_dishes DESC LIMIT 1;`
   connection.query(query, function(err, rows, fields) {
     if (err) console.log(err);
     else {
@@ -563,5 +540,6 @@ module.exports = {
   getTF : getTF,
   foodPics : getFoodPics,
   getDeal : getItemDeal,
+  getRand : getRand
 
 }
