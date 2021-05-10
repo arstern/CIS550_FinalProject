@@ -449,6 +449,7 @@ function complex_query (req,res){
   SELECT *
   FROM Restaurant
   WHERE price_range<= '${inputPrice}' AND borough LIKE '%${inputBorough}%' AND LENGTH(restaurant_website) >0
+
   ),
   cuisines AS(
   SELECT * FROM Cuisine
