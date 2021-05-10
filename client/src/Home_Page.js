@@ -11,6 +11,7 @@ import { PrimaryButton } from "components/misc/Buttons";
 import { Link } from "react-router-dom";
 //import 'react-dropdown/style.css';
 import Select from 'react-select';
+import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 
 
 //import { createPopper } from '@popperjs/core';
@@ -92,6 +93,15 @@ const Actions = styled.div`
   }
 `;
 
+const mapContainerStyle = {
+  width: "20vw",
+  height: "20vh",
+};
+const center={
+  lat: 40.712776,
+  lng: -74.005974,
+};
+
 export default class ResultsPage extends React.Component {
   constructor(props){
     super(props);
@@ -107,6 +117,7 @@ export default class ResultsPage extends React.Component {
        // add in the selected borough variable
        selectedBorough: "Bronx",
        showRestName : false,
+       location_choice: null,
        posts : [
           {
             imageSrc:
@@ -222,6 +233,34 @@ ZipPriceClick () {
     localStorage.setItem('query_rest_name',document.getElementById('rest_name_box').value);
     console.log(localStorage.getItem('query_rest_name'));
   }
+
+  Map() {
+    return (
+      <LoadScript
+        googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
+      >
+        <GoogleMap
+          id='map'
+          mapContainerStyle={mapContainerStyle}
+          center={center}
+          zoom={13}
+          onClick={(event) => {this.setState(
+                              {location_choice: {lat: event.latLng.lat(), 
+                                                lng: event.latLng.lng()}}
+                              )}
+                              }
+        >
+
+          <Marker
+            key='1'
+            position={ this.state.location_choice }
+          />
+
+        </GoogleMap>
+      </LoadScript>
+    )
+  }
+
   render(){
     //const showZipCodeButton =this.state.showZipCodeButton;
     //const showPriceDropdown =this.state.showPriceDropdown;
@@ -269,6 +308,7 @@ ZipPriceClick () {
           options={Boroughs}
           onChange={this.handleSelectBorough}
         />)}
+          {this.Map()}
           {showLocDropdown &&(
           <Actions>
             <input type="text" id="lat_text_box" placeholder="Enter Latitude"/>

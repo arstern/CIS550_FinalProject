@@ -8,7 +8,7 @@ import Header from "components/headers/light.js";
 import Footer from "components/footers/FiveColumnWithInputForm.js";
 import { SectionHeading } from "components/misc/Headings";
 import { PrimaryButton } from "components/misc/Buttons";
-import { GoogleMap, LoadScript, useLoadScript, Marker, InfoWindow } from "@react-google-maps/api";
+import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import { NavLink } from 'react-router-dom'
 
 const HeadingRow = tw.div`flex`;
