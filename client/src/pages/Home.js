@@ -376,8 +376,11 @@ ZipPriceClick () {
         </ButtonContainer>
         {showLocDropdown &&(
         <Actions>
-              <input type="text" id='textbox_id_adv_search' placeholder="Enter Dish / Cuisine" />
+              <input type="text" id='textbox_id_adv_search' placeholder="Enter Cuisine" />
         </Actions>)}
+        {showLocDropdown && (
+          <div>Click on the map to search for restaurants around the selected location</div>
+        )}
         {showLocDropdown && (
           this.Map()
         )}
@@ -416,7 +419,7 @@ ZipPriceClick () {
           />)}
           {showComplexQuery && (
           <Actions>
-              <input type="text" id='textbox_id_complex_query' placeholder="Enter Dish / Cuisine" />
+              <input type="text" id='textbox_id_complex_query' placeholder="Enter Cuisine" />
             </Actions>)}
             { showComplexQuery &&(
           <Actions>

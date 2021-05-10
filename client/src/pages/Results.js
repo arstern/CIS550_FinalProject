@@ -81,6 +81,7 @@ export default class ResultsPage extends React.Component {
           getPlaceholderPost()
       ]      
     };
+    this.cheapest_chain = null;
     this.mapRef = React.createRef();
     this.onMapLoad = this.onMapLoad.bind(this);
     this.onLoadMoreClick = this.onLoadMoreClick.bind(this);
@@ -206,18 +207,33 @@ export default class ResultsPage extends React.Component {
     var cheap_chain = localStorage.getItem('query_cheap_chain_toggle')
     var r_name = localStorage.getItem('query_rest_name');
     if (cheap_chain == 1){
+
+        //execute two queries here, one to get the cheapest chain and one to get all the restaurants
+        //first query (just store the rid of the cheapest chain in state so that it can be a featured restaurant)
+        this.cheapest_chain = null
+        query = "http://localhost:8082/cheapest_chain/" + r_name
+        fetch(query, {
+          method: "GET",
+        })
+          .then(res => res.json())
+          .then(resList => {
+            this.cheapest_chain = resList[0]['restaurant_id'];
+          })
+          .catch(err => console.log(err));
+        
+        //query to be used in second final query that displays results
         headingText = r_name.charAt(0).toUpperCase() + r_name.toLowerCase().slice(1) + " Restaurants" 
-        query = "http://localhost:8082/name_search/" + r_name 
+        query = "http://localhost:8082/name_search/" + r_name
+
     }
     
     this.state.headingText = headingText
     console.log(query)
     fetch(query, {
-      method: "GET", // The type of HTTP request.
+      method: "GET",
     })
-      .then(res => res.json()) // Convert the response data to a JSON.
+      .then(res => res.json())
       .then(resList => {
-        console.log(resList)
         this.new_populate(resList);
       })
       .catch(err => console.log(err));
@@ -226,16 +242,18 @@ export default class ResultsPage extends React.Component {
 
   new_populate(resList) {
     var posts_list = Array()
-
     for (var i =0; i < resList.length; i++ ){
-      if (i == 0){
-            posts_list.push({
+      if (this.cheapest_chain && resList[i]['restaurant_id'] == this.cheapest_chain){
+            console.log("Cheapest chain:")
+            console.log(resList[i]['restaurant_id'])
+            posts_list.unshift({
                 imageSrc: "https://www.bhc.edu/wp-content/uploads/2017/09/hello-585289042.jpg",
                 category: "Featured Restaurant",
                 date: "April 21, 2020",
                 title: resList[i]['restaurant_name'],
                 url: "/restaurant/" + resList[i]['restaurant_id'],
-                description: resList[i]['formatted'] + "\n\n" + resList[i]['restaurant_website'],
+                //description: resList[i]['formatted'] + "\n\n" + resList[i]['restaurant_website'],
+                description: "This restaurant location has the cheapest dishes on average! Address: " + resList[i]['formatted'],
                 featured: true
             });
             this.setState({
