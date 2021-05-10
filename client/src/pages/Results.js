@@ -99,34 +99,34 @@ export default class ResultsPage extends React.Component {
     var db_url = ""
     var db_attributes = ""
     var query_cuisine = localStorage.getItem('query_cuisine')
-    if (query_cuisine != null || query_cuisine.length != 0){
+    if (query_cuisine != null && query_cuisine != 0 && query_cuisine.length != 0){
       db_url += 'c'
       db_attributes += query_cuisine + "/"
     }
 
     var query_lat = localStorage.getItem('query_lat')
     var query_long = localStorage.getItem('query_lon')
-    if (query_lat != null && query_long != null){
+    if (query_lat != null && query_long != null && query_lat != 0 && query_long != 0){
       db_url += 'l'
       db_attributes += query_lat + "/" + query_long + "/"
     }
     
 
     var query_borough = localStorage.getItem('query_borough')
-    if (query_borough != null){
+    if (query_borough != null && query_borough != 0){
       db_url += 'b'
       db_attributes += query_borough + "/"
     }
 
     var query_price = localStorage.getItem('query_price')
-    if (query_price != null){
+    if (query_price != null && query_price != 0){
       db_url += 'p'
       db_attributes += query_price + "/"
     }
 
     console.log(db_url);
-    db_url = 'lb'
-    db_attributes = '40.7831/-73.97/Manhattan/'
+    //db_url = 'lb'
+    //db_attributes = '40.7831/-73.97/Manhattan/'
     var query = "http://localhost:8082/dummy_search/";
     if (db_url.length > 0) {
       var query = "http://localhost:8082/" + db_url +"_search/" + db_attributes

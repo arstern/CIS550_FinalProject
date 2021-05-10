@@ -198,8 +198,8 @@ ZipPriceClick () {
    localStorage.setItem('query_cuisine', document.getElementById('textbox_id').value);
    localStorage.setItem('query_lat', 0);
    localStorage.setItem('query_lon', 0);
-   localStorage.setItem('query_borough', null);
-   localStorage.setItem('query_price', null);
+   localStorage.setItem('query_borough', 0);
+   localStorage.setItem('query_price', 0);
   }
 
   render(){
