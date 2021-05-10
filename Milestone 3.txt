@@ -163,32 +163,68 @@ WHERE Cuisine.cuisine LIKE '%Italian%' AND `address.city` LIKE 'New York'
 GROUP BY `address.postal_code`
 ORDER BY Number_Restaurants DESC;
 
-#Find the restaurant (less than or equal to a certain price range) name, website, number of dishes, and website that serves a certain cuisine in a certain city and has the most number of dishes (has the most selection) 
+#Find the restaurant (less than or equal to a certain price range) name, website, number of dishes, and website that serves a certain cuisine in a certain borough and has the most number of dishes (has the most selection) 
+
+SELECT COUNT(Restaurant.restaurant_id) AS Number_Restaurants, borough
+
+FROM Restaurant
+
+JOIN Cuisine ON Restaurant.restaurant_id = Cuisine.restaurant_id
+
+WHERE Cuisine.cuisine LIKE '%Chinese%' AND borough LIKE "%Manhattan%"
+
+GROUP BY borough
+
+ORDER BY Number_Restaurants DESC;
 
 WITH rests AS (
+
 SELECT restaurant_name, restaurant_website, restaurant_id 
+
 FROM Restaurant
-WHERE price_range_num <= 2 AND `address.city` LIKE '%Staten Island%' AND LENGTH(restaurant_website) >0
+
+WHERE price_range_num <= 2 AND borough LIKE '%Manhattan%' AND LENGTH(restaurant_website) >0
+
 ),
+
 cuisines AS(
+
 SELECT * FROM Cuisine
+
 WHERE Cuisine LIKE '%Chinese%'
+
 ),
+
 joined AS (
+
 SELECT rests.restaurant_name,rests.restaurant_website,rests.restaurant_id, cuisines.cuisine
+
 FROM rests 
+
 JOIN cuisines ON rests.restaurant_id = cuisines.restaurant_id
+
 ),
+
 rest_ids AS (
+
 SELECT restaurant_id FROM joined),
+
 num_dishes AS (
+
 SELECT COUNT(name) AS num_dishes, FoodItem.rest_id 
+
 FROM FoodItem 
+
 JOIN rest_ids ON FoodItem.rest_id = rest_ids.restaurant_id
+
 GROUP BY FoodItem.rest_id 
+
 ) 
+
 SELECT num_dishes, restaurant_name, restaurant_website,cuisine FROM num_dishes 
+
 JOIN joined ON num_dishes.rest_id = joined.restaurant_id
+
 ORDER BY num_dishes DESC LIMIT 1;
 
 ###DB credentials and Instructions###
