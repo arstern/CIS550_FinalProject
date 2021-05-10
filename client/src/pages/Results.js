@@ -122,7 +122,7 @@ export default class ResultsPage extends React.Component {
           onLoad={this.onMapLoad}
         >
 
-          {/*this.state.reslist.map((rest) => (
+          {this.state.reslist.map((rest) => (
             <Marker
               key={rest['restaurant_id']}
               position={{
@@ -138,7 +138,7 @@ export default class ResultsPage extends React.Component {
               }}
             />
           ))
-            */}
+            }
 
           {/*if this.state.infowindow has a value, show info window, else null */}
           {this.state.infowindow ? (
@@ -254,6 +254,7 @@ export default class ResultsPage extends React.Component {
       new_posts: posts_list,
       visible: 4
     });
+    console.log(this.state.reslist)
   }
 
   render(){
