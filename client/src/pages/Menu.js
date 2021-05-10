@@ -148,7 +148,8 @@ export default class Menu extends React.Component {
             var deal_percent = Math.round( 100 * (p1 - p0) / p0 * 100)/100 ;
             //console.log(cat + ", " + name)
             //console.log("     " + p0 + ", " + p1 + " -> " + deal_percent)
-            actual_food[cat][i]['deal'] = deal_percent.toString() + "%"
+            var sign = (deal_percent > 0) ? '+' : ''
+            actual_food[cat][i]['deal'] = sign + deal_percent.toString() + "%"
             this.setState({
               tabs : actual_food
             }); 

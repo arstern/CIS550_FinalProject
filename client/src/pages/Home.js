@@ -159,6 +159,8 @@ export default class ResultsPage extends React.Component {
       localStorage.setItem('query_cheap_chain_toggle', 0);
       localStorage.setItem('query_rest_name', 0);
       localStorage.setItem('query_rest_name_toggle', 0);
+      localStorage.setItem('query_long', 0);
+      localStorage.setItem('query_lat', 0);
 
 
       fetch("http://localhost:8082/random/", {
