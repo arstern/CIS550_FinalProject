@@ -119,11 +119,11 @@ export default class ResultsPage extends React.Component {
           {
             imageSrc:
               "https://img.freepik.com/free-vector/food-courts-icons-set-outline-style_96318-5492.jpg?size=626&ext=jpg",
-            category: "New York New York?",
+            category: "Feeling Hungry?",
             date: "April 21, 2020",
-            title: "New York New York",
+            title: "Random Restaurant",
             description:
-              "",
+              "Click here to see the menu of a Random restaurant",
             featured: true
           }
       ]
@@ -150,17 +150,21 @@ export default class ResultsPage extends React.Component {
 //this is the function to show the advanced search dropdown / button 
   onAdvancedSearchButtonShowClick () {
       this.setState({
-          showZipCodeButton : true,
-          showPriceDropdown : true,
+          showZipCodeButton : !this.state.showZipCodeButton,
+          showPriceDropdown : !this.state.showPriceDropdown,
+          showRestName: false,
+          showComplexQuery: false
       });
   };
   
   //add in function for showing more based on clicking loc cuisine button
   onLocCuisineButtonClick () {
       this.setState({
-          showLocDropdown : true,
-          showCuisineDropdown : true,
-          showMainSearch : false,
+          showLocDropdown : !this.state.showLocDropdown,
+          showCuisineDropdown : !this.state.showLocDropdown,
+          showRestName: false,
+          showComplexQuery: false,
+          showMainSearch : !this.state.showRestName && this.state.showLocDropdown && !this.showComplexQuery
         });
     };
   //function to store the borough dropdown values
@@ -172,15 +176,19 @@ export default class ResultsPage extends React.Component {
 //function to save the price selected
   handleSelectPrice = (e) => {
     const input_price= e.value
-    //console.log(input)
     localStorage.setItem('query_price',input_price)
   };
 
   //function for rest name button 
   onSearchRestNameButtonClick (){
-    this.setState({
-      showRestName: true,
-      showMainSearch: false
+    this.setState({      
+      showLocDropdown : false,
+      showCuisineDropdown : false,
+      showPriceDropdown : false,
+      showZipCodeButton : false,
+      showComplexQuery: false,
+      showMainSearch: this.state.showRestName && !this.state.showLocDropdown && !this.state.showComplexQuery,
+      showRestName: !this.state.showRestName
     })
 
   } 
@@ -314,8 +322,13 @@ ZipPriceClick () {
   //create ComplexQueryButton function
   OnComplexQueryButtonClick () {
     this.setState({
-      //update the state for the complex query
-        showComplexQuery: true
+       showZipCodeButton: false,
+       showPriceDropdown: false,
+       showLocDropdown : false,
+       showCuisineDropdown : false,
+       showRestName: false,
+       showComplexQuery: !this.state.showComplexQuery,       
+       showMainSearch : this.state.showComplexQuery
     })
     };
 
@@ -341,7 +354,7 @@ ZipPriceClick () {
             {showMainSearch &&(
               <Actions>
               <Link to="/results">
-              <button onClick={this.DBClick}>Search</button>
+              <button onClick={this.DBClick}>Simple Search</button>
               </Link>
             </Actions>)}
           </HeadingRow>
