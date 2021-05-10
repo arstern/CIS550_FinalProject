@@ -323,7 +323,7 @@ ZipPriceClick () {
   Map() {
     return (
       <LoadScript
-        googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
+        googleMapsApiKey='AIzaSyBw8nK5Fr-iA4DEuOplnA7p1mqKVdcaJgk'
       >
         <GoogleMap
           id='map'
@@ -407,8 +407,11 @@ ZipPriceClick () {
         </ButtonContainer>
         {showLocDropdown &&(
         <Actions>
-              <input type="text" id='textbox_id_adv_search' placeholder="Cuisine" />
+              <input type="text" id='textbox_id_adv_search' placeholder="Enter Cuisine" />
         </Actions>)}
+        {showLocDropdown && (
+          <div>Click on the map to search for restaurants around the selected location</div>
+        )}
         {showLocDropdown && (
           this.Map()
         )}
@@ -431,7 +434,7 @@ ZipPriceClick () {
               </Link>
             </Actions>)}
         <ButtonContainer>
-              <ComplexQueryButton onClick={this.OnComplexQueryButtonClick}>Want to find the restaurant in your favorite borough that has the most selection and serves your favorite cuisine? Click Here!</ComplexQueryButton>
+              <ComplexQueryButton onClick={this.OnComplexQueryButtonClick}>On a budget and want to find the restaurant in your favorite borough that has the most selection and serves your favorite cuisine? Click Here!</ComplexQueryButton>
         </ButtonContainer>
         {showComplexQuery &&(
           <Select
@@ -447,7 +450,7 @@ ZipPriceClick () {
           />)}
           {showComplexQuery && (
           <Actions>
-              <input type="text" id='textbox_id_complex_query' placeholder="Enter Dish / Cuisine" />
+              <input type="text" id='textbox_id_complex_query' placeholder="Enter Cuisine" />
             </Actions>)}
             { showComplexQuery &&(
           <Actions>

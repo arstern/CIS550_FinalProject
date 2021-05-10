@@ -52,21 +52,6 @@ function getRFromName(req, res){
   });
 }
 
-function dummySearch(req, res) {  
-  // TODO: (3) - Edit query below
-  var query = `
-    SELECT restaurant_name, restaurant_id AS rid
-    FROM Restaurant r
-    LIMIT 1;
-  `;
-  connection.query(query, function(err, rows, fields) {
-    if (err) console.log(err);
-    else {
-      res.json(rows);
-    }
-  });
-};
-
 function getFoodItems(req, res){
   var inputId = req.params.rid;
 
@@ -124,12 +109,9 @@ function getItemDeal(req, res){
 function getRFromC(req, res) {
   var inputCuisine = req.params.cuisine;
   
-  // TODO: (3) - Edit query below
-  var query = `
-    SELECT *
-    FROM Cuisine c JOIN Restaurant r ON r.restaurant_id = c.restaurant_id
-    WHERE c.cuisine = "${inputCuisine}";
-  `;
+  var query = `SELECT distinct restaurant_name, restaurant_website, price_range, price_range_num, restaurant_id, formatted, lat, lon, borough
+               FROM rest_cuisine_food r
+               WHERE r.cuisine = "${inputCuisine}" OR r.name = "${inputCuisine}";`;
   connection.query(query, function(err, rows, fields) {
     if (err) console.log(err);
     else {
@@ -477,7 +459,39 @@ function complex_query (req,res){
       res.json(rows);
     }
   });
-}
+};
+
+function getCheapestChain(req, res) {
+  var inputRest = req.params.name;
+  
+  var query = `
+  WITH avg_prices_rest AS ((SELECT r1.restaurant_id, AVG(f1.price) as avg_price
+	FROM Restaurant r1
+    INNER JOIN FoodItem f1 ON r1.restaurant_id = f1.rest_id
+    WHERE restaurant_name LIKE "%${inputRest}%"
+    GROUP BY r1.restaurant_id
+    HAVING avg_price != 0))
+
+    SELECT DISTINCT r.*
+    FROM Restaurant r
+    INNER JOIN FoodItem f ON r.restaurant_id = f.rest_id
+    WHERE r.restaurant_name LIKE "%${inputRest}%"
+    AND r.restaurant_id = (SELECT av.restaurant_id
+          FROM avg_prices_rest av
+          WHERE av.avg_price <= ALL(SELECT avg_price
+                FROM avg_prices_rest));
+  `;
+  connection.query(query, function(err, rows, fields) {
+    if (err) console.log(err);
+    else {
+      res.json(rows);
+    }
+  });
+};
+
+function dummySearch() {
+
+};
 
 // The exported functions, which can be accessed in index.js.
 module.exports = {
@@ -504,6 +518,7 @@ module.exports = {
   dummySearch : dummySearch,
   getName : getName,
   nameSearch: getRFromName,
+  cheapest_chain: getCheapestChain,
   getFoodItems : getFoodItems,
   getTF : getTF,
   foodPics : getFoodPics,
