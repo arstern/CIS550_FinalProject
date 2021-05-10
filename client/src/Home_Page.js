@@ -302,13 +302,15 @@ ZipPriceClick () {
         <ButtonContainer>
               <LocCuisineButton onClick={this.onLocCuisineButtonClick}>Want To Try An Advanced Search? Click Here!</LocCuisineButton>
         </ButtonContainer>
+        {showLocDropdown && (
+          this.Map()
+        )}
         {showLocDropdown &&(
           <Select
           placeholder = "Select A Borough!"
           options={Boroughs}
           onChange={this.handleSelectBorough}
         />)}
-          {this.Map()}
           {showLocDropdown &&(
           <Actions>
             <input type="text" id="lat_text_box" placeholder="Enter Latitude"/>
