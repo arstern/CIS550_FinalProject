@@ -244,8 +244,6 @@ export default class ResultsPage extends React.Component {
     var posts_list = Array()
     for (var i =0; i < resList.length; i++ ){
       if (this.cheapest_chain && resList[i]['restaurant_id'] == this.cheapest_chain){
-            console.log("Cheapest chain:")
-            console.log(resList[i]['restaurant_id'])
             posts_list.unshift({
                 imageSrc: "https://www.bhc.edu/wp-content/uploads/2017/09/hello-585289042.jpg",
                 category: "Featured Restaurant",

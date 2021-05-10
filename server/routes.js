@@ -124,12 +124,6 @@ function getItemDeal(req, res){
 function getRFromC(req, res) {
   var inputCuisine = req.params.cuisine;
   
-  /*var query = `
-    SELECT distinct r.*
-    FROM Cuisine c JOIN Restaurant r ON r.restaurant_id = c.restaurant_id JOIN FoodItem f ON f.rest_id = r.restaurant_id
-    WHERE c.cuisine = "${inputCuisine}" OR f.name = "${inputCuisine}";
-  `;
-  */
   var query = `SELECT distinct restaurant_name, restaurant_website, price_range, price_range_num, restaurant_id, formatted, lat, lon, borough
                FROM rest_cuisine_food r
                WHERE r.cuisine = "${inputCuisine}" OR r.name = "${inputCuisine}";`;
