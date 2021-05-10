@@ -52,21 +52,6 @@ function getRFromName(req, res){
   });
 }
 
-function dummySearch(req, res) {  
-  // TODO: (3) - Edit query below
-  var query = `
-    SELECT restaurant_name, restaurant_id AS rid
-    FROM Restaurant r
-    LIMIT 1;
-  `;
-  connection.query(query, function(err, rows, fields) {
-    if (err) console.log(err);
-    else {
-      res.json(rows);
-    }
-  });
-};
-
 function getFoodItems(req, res){
   var inputId = req.params.rid;
 
