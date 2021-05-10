@@ -169,10 +169,10 @@ export default class Menu extends React.Component {
     .then(res => res.json())
     .then(tflist =>{
         
-        let tfmap = new Map();
-        for (var i = 0; i < tflist.length; i++){
-          tfmap.set(tflist[i]['word'].toLowerCase(), tflist[i]['tf']);
-        }
+        // let tfmap = new Map();
+        // for (var i = 0; i < tflist.length; i++){
+        //   tfmap.set(tflist[i]['word'].toLowerCase(), tflist[i]['tf']);
+        // }
         fetch("http://localhost:8082/foodpics", {
         method: "GET", // The type of HTTP request.
         })

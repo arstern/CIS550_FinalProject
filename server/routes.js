@@ -80,11 +80,16 @@ function getItemDeal(req, res){
   var foodName = req.params.food;
   var cat = req.params.category;
 
+  // var query = `
+  //   SELECT name, AVG(price) as price, "${cat}" as category
+  //   FROM average_price_by_name_cuisine
+  //   WHERE name = "${foodName}"
+  //   GROUP BY name;
+  // `;
   var query = `
-    SELECT name, AVG(price) as price, "${cat}" as category
-    FROM average_price_by_name_cuisine
-    WHERE name = "${foodName}"
-    GROUP BY name;
+  SELECT name, price, "${cat}" as category
+  FROM average_price_by_name_cuisine
+  WHERE name = "${foodName}";
   `;
   connection.query(query, function(err, rows, fields) {
     if (err) console.log(err);
