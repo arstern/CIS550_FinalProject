@@ -1,6 +1,6 @@
 # CIS550_FinalProject
 
-NYC Dish Finder Web app. Find restaurants that serve your favorite dishes based your price range, location, cuisine of choice, NYC borough, and more. Get info on which dishes are priced above or below average. And do all of it with an interactive map of NYC.
+NYC Dish Finder Web app. Find restaurants that serve your favorite dishes based on your price range, location, cuisine of choice, NYC borough, and more powerful search conditions. Get info on which dishes are priced above or below average. And do it all with an interactive map displaying restaurant location results every step of the way.
 
 # Instructions To Run The Web App
 
