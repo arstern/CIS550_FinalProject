@@ -1,6 +1,6 @@
 # CIS550_FinalProject
 
-NYC Dish Finder Web app. 
+NYC Dish Finder Web app. Find restaurants that serve your favorite dishes based your price range, location, cuisine of choice, NYC borough, and more.
 
 # Instructions To Run The Web App
 
