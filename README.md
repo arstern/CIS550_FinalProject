@@ -8,7 +8,8 @@ NYC Dish Finder Web app. Find restaurants that serve your favorite dishes based 
 2) Cd into the server folder and delete all node modules
 3) Cd into server folder and run the command "npm install" in your terminal
 4) Cd into the client folder and delete all node modules
-5) Cd into the server folder and run the command "npm install" in your terminal
-6) Cd into the client folder and type the command "npm install" in your terminal 
-7) The web app should open in your browser. Enjoy searching for your next favorite restaurant in NYC!
+5) Cd into the client folder and run the command "npm install" in your terminal
+6) Cd into the server folder and type the command "npm start" in your terminal 
+7) Cd into the client folder and type the command "npm start" in your terminal 
+8) The web app should open in your browser. Enjoy searching for your next favorite restaurant in NYC!
 
