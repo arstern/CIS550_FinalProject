@@ -94,7 +94,7 @@ export default class ResultsPage extends React.Component {
   Map() {
     return (
       <LoadScript
-        googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
+        googleMapsApiKey='AIzaSyBw8nK5Fr-iA4DEuOplnA7p1mqKVdcaJgk'
       >
         <GoogleMap
           id='map'
