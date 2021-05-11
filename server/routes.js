@@ -465,21 +465,9 @@ function getCheapestChain(req, res) {
   var inputRest = req.params.name;
   
   var query = `
-  WITH avg_prices_rest AS ((SELECT r1.restaurant_id, AVG(f1.price) as avg_price
-	FROM Restaurant r1
-    INNER JOIN FoodItem f1 ON r1.restaurant_id = f1.rest_id
-    WHERE restaurant_name LIKE "%${inputRest}%"
-    GROUP BY r1.restaurant_id
-    HAVING avg_price != 0))
-
-    SELECT DISTINCT r.*
-    FROM Restaurant r
-    INNER JOIN FoodItem f ON r.restaurant_id = f.rest_id
-    WHERE r.restaurant_name LIKE "%${inputRest}%"
-    AND r.restaurant_id = (SELECT av.restaurant_id
-          FROM avg_prices_rest av
-          WHERE av.avg_price <= ALL(SELECT avg_price
-                FROM avg_prices_rest));
+	SELECT * 
+	FROM cheapest_chain 
+	WHERE restaurant_name LIKE "%${inputRest}%";
   `;
   connection.query(query, function(err, rows, fields) {
     if (err) console.log(err);
