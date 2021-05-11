@@ -9,6 +9,27 @@ CREATE TABLE `main`.`cheapest_chain` (
 `restaurant_name` VARCHAR(250),
 PRIMARY KEY (`restaurant_id`));
 
+CREATE TABLE `main`.`rest_cuisine_food` (
+ `restaurant_name` VARCHAR(100) NULL,
+  `restaurant_phone` VARCHAR(45) NULL,
+  `restaurant_website` VARCHAR(200) NULL,
+  `hours` VARCHAR(200) NULL,
+  `price_range` VARCHAR(45) NULL,
+  `price_range_num` INT NULL,
+  `restaurant_id` BIGINT NOT NULL,
+  `city` VARCHAR(45) NULL,
+  `state` VARCHAR(45) NULL,
+  `postal_code` INT NULL,
+  `street` VARCHAR(100) NULL,
+  `formatted` VARCHAR(200) NULL,
+  `lat` FLOAT NULL,
+  `lon` FLOAT NULL,
+  `borough` VARCHAR(100) NULL,
+  `cuisine` VARCHAR(100) NOT NULL,
+  `name` VARCHAR(300) NOT NULL,
+  `description` VARCHAR(300) NOT NULL,
+  PRIMARY KEY (`restaurant_id`, `cuisine`, `name`, `description`));
+
 INSERT INTO average_price_by_name_cuisine
 WITH choose_food_cuisine AS(SELECT cuisine, name, price
 FROM FoodItem F 
@@ -31,3 +52,9 @@ FROM avg_prices_rest av
 WHERE avg_price <= ALL(SELECT avg_price
 						FROM avg_prices_rest
                         WHERE av.restaurant_name = restaurant_name);
+
+INSERT INTO rest_cuisine_food
+SELECT r.*, cuisine, name, description
+FROM Restaurant r 
+JOIN Cuisine c ON r.restaurant_id = c.restaurant_id
+JOIN FoodItem f ON r.restaurant_id = f.rest_id;
