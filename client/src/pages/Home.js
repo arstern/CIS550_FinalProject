@@ -324,9 +324,9 @@ ZipPriceClick () {
 
   Map() {
     return (
-      <LoadScript
-        googleMapsApiKey='AIzaSyBw8nK5Fr-iA4DEuOplnA7p1mqKVdcaJgk'
-      >
+      {/* <LoadScript 
+        googleMapsApiKey= INSERT YOUR API KEY HERE
+      >*/}
         <GoogleMap
           id='map'
           mapContainerStyle={mapContainerStyle}
